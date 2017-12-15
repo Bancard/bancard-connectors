@@ -1,0 +1,17 @@
+{
+  "name": "bancard-connectors",
+  "version": "1.0.0",
+  "author": "Bruno Bradach <bruno.bradach@moove-it.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-eslint": "^8.0.3",
+    "eslint": "^4.13.1",
+    "eslint-config-airbnb-es5": "^1.2.0",
+    "eslint-plugin-react": "^7.5.1",
+    "uglify-js": "^3.2.2"
+  },
+  "scripts": {
+    "build": "node ./scripts/build.js",
+    "lint": "node ./scripts/lint.js"
+  }
+}
