@@ -1,13 +1,13 @@
 ((function bancardCheckout(window) {
   var Settings = {
     IframeUrl: 'https://desa.infonet.com.py:8085/checkout/new?is_test_client=true&',
-    DivId: ''
+    DivId: void 0
   };
 
   var internalMethods = {
     redirect: function redirect(event) {
       var url = event.data.return_url;
-      window.location.replace(url);
+      location.assign(url);
     },
 
     setListener: function setListener() {
@@ -17,6 +17,17 @@
 
   var BancardCheckout = function BancardCheckout() {};
 
+  var DivDoesNotExist = function DivDoesNotExist(divId) {
+    this.name = 'DivDoesNotExist';
+    this.message = 'Div with id: ' + divId + ' could not be found.';
+    this.stack = (new Error()).stack;
+  };
+  DivDoesNotExist.prototype = new Error();
+
+  BancardCheckout.prototype.exceptions = {
+    'DivDoesNotExist': DivDoesNotExist
+  };
+
   BancardCheckout.prototype.init = function init(divId, processId) {
     var iframeUrl;
     var iframeContainer;
@@ -25,8 +36,12 @@
 
     Settings.DivId = divId;
 
-    iframeUrl = Settings.IframeUrl;
     iframeContainer = document.getElementById(divId);
+    if (!iframeContainer) {
+      throw new DivDoesNotExist(divId);
+    }
+
+    iframeUrl = Settings.IframeUrl;
     iframe = document.createElement('iframe');
 
     lastIframeUrlChar = iframeUrl.slice(-1);
@@ -55,9 +70,13 @@
 
     window.removeEventListener('message', internalMethods.redirect);
 
-    while (iframeContainer.firstChild) {
-      iframeContainer.removeChild(iframeContainer.firstChild);
+    if (iframeContainer) {
+      while (iframeContainer.firstChild) {
+        iframeContainer.removeChild(iframeContainer.firstChild);
+      }
     }
+
+    Settings.DivId = void 0;
   };
 
   if (typeof (window.BancardCheckout) === 'undefined') {

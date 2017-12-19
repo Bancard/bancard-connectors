@@ -2,9 +2,15 @@ function uglify(srcPath, distPath) {
   const UglifyJS = require('uglify-js');
   const Fs = require('fs');
   const raw = Fs.readFileSync(srcPath).toString();
-  const compiled = UglifyJS.minify(raw).code;
+  const uglifyResult = UglifyJS.minify(raw);
 
+  if (uglifyResult.error) {
+    throw uglifyResult.error;
+  }
+
+  const compiled = uglifyResult.code;
   Fs.writeFileSync(distPath, compiled);
+
   console.log('Script built.');
 }
 
