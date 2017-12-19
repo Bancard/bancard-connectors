@@ -16,7 +16,6 @@
       var status = event.data.message;
 
       url = internalMethods.addParamToUrl(url, 'status', status);
-
       location.assign(url);
     },
 
