@@ -7,4 +7,4 @@ function lint(files) {
   console.log(formatter(report.results));
 }
 
-lint(['bancard-checkout.js']);
+lint(['bancard-checkout.js', 'bancard-checkout.test.js']);
