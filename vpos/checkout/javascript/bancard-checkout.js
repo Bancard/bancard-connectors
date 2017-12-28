@@ -42,6 +42,7 @@
     iframe.src = iframeUrl;
     iframe.style.width = '100%';
     iframe.style.height = '100%';
+    iframe.style.borderWidth = '0px'
 
     iframeContainer.innerHTML = '';
     iframeContainer.appendChild(iframe);
