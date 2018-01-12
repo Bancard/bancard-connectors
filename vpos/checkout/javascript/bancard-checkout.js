@@ -17,7 +17,7 @@
 
   var BancardCheckout = function BancardCheckout() {};
 
-  BancardCheckout.prototype.init = function init(divId, processId) {
+  BancardCheckout.prototype.init = function init(divId, processId, styles) {
     var iframeUrl;
     var iframeContainer;
     var iframe;
@@ -37,6 +37,10 @@
       iframeUrl += '&process_id=' + processId;
     } else {
       iframeUrl += '?process_id=' + processId;
+    }
+
+    if (typeof styles !== 'undefined') {
+      iframeUrl += '&styles=' + encodeURIComponent(JSON.stringify(styles));
     }
 
     iframe.src = iframeUrl;
