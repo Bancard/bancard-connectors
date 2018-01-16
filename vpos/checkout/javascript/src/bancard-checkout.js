@@ -7,6 +7,7 @@ import exceptions from './bancard-checkout-exceptions';
 
   const Settings = {
     CheckoutIframeUrl: `${BancardUrl}/checkout/new`,
+    NewCardIframeUrl: `${BancardUrl}/checkout/register_card/new`,
     AllowedStylesUrl: `${BancardUrl}/checkout/allowed_styles`,
     DivId: null,
     handler: 'default',
@@ -162,10 +163,16 @@ import exceptions from './bancard-checkout-exceptions';
   Bancard.prototype.Exceptions = exceptions;
 
   Bancard.prototype.Checkout = function Checkout() {};
+  Bancard.prototype.Cards = function Cards() {};
 
   Bancard.prototype.Checkout.createForm =
     function createCheckoutForm(divId, processId, options) {
       internalMethods.createForm(divId, processId, Settings.CheckoutIframeUrl, options);
+    };
+
+  Bancard.prototype.Cards.createForm =
+    function createNewCardForm(divId, processId, options) {
+      internalMethods.createForm(divId, processId, Settings.NewCardIframeUrl, options);
     };
 
   Bancard.prototype.destroy = function destroy() {
