@@ -1,8 +1,8 @@
 import exceptions from './bancard-checkout-exceptions';
-
 import constants from './constants';
 
 const CHECKOUT_IFRAME_URL = `${constants.BANCARD_URL}/checkout/new`;
+const NEW_CARD_IFRAME_URL = `${constants.BANCARD_URL}/checkout/register_card/new`;
 const ALLOWED_STYLES_URL = `${constants.BANCARD_URL}/checkout/allowed_styles`;
 
 const Settings = {
@@ -99,7 +99,9 @@ const internalMethods = {
     });
   },
 
-  createForm: (divId, processId, options) => {
+  createForm: ({
+    divId, processId, options, url,
+  }) => {
     if (typeof divId !== 'string' || divId === '') {
       throw new exceptions.InvalidParameter('Div id');
     }
@@ -116,7 +118,7 @@ const internalMethods = {
 
     const iframe = window.document.createElement('iframe');
 
-    let newIframeUrl = internalMethods.addParamToUrl(CHECKOUT_IFRAME_URL, 'process_id', processId);
+    let newIframeUrl = internalMethods.addParamToUrl(url, 'process_id', processId);
     if (typeof options !== 'undefined') {
       if (typeof options.styles !== 'undefined') {
         internalMethods.validateStyles(options.styles);
@@ -152,10 +154,24 @@ class Bancard {
     return {
       createForm: (divId, processId, options) => {
         this.divId = divId;
-        internalMethods.createForm(divId, processId, options);
+        internalMethods.createForm({
+          divId, processId, options, url: CHECKOUT_IFRAME_URL,
+        });
       },
     };
   }
+
+  get Cards() {
+    return {
+      createForm: (divId, processId, options) => {
+        this.divId = divId;
+        internalMethods.createForm({
+          divId, processId, options, url: NEW_CARD_IFRAME_URL,
+        });
+      },
+    };
+  }
+
   destroy() {
     const iframeContainer = window.document.getElementById(this.divId);
 
