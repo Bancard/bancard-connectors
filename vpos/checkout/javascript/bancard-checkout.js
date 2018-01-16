@@ -1,13 +1,15 @@
 ((function bancardCheckout(window) {
+  var BancardUrl = 'https://desa.infonet.com.py:8085';
+
   var Settings = {
-    CheckoutIframeUrl: 'https://desa.infonet.com.py:8085/checkout/new?is_test_client=true&',
-    BancardUrl: 'https://desa.infonet.com.py:8085',
+    CheckoutIframeUrl: BancardUrl + '/checkout/new',
+    NewCardIframeUrl: BancardUrl + '/checkout/register_card/new',
     DivId: ''
   };
 
   var internalMethods = {
     redirect: function redirect(event) {
-      if (event.origin !== Settings.BancardUrl) {
+      if (event.origin !== BancardUrl) {
         return;
       }
 
