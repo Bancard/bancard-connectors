@@ -3,6 +3,7 @@
 
   var Settings = {
     CheckoutIframeUrl: BancardUrl + '/checkout/new',
+    NewCardIframeUrl: BancardUrl + '/checkout/register_card/new',
     DivId: null
   };
 
@@ -88,10 +89,16 @@
   var Bancard = function Bancard() {};
 
   Bancard.prototype.Checkout = function Checkout() {};
+  Bancard.prototype.Cards = function Cards() {};
 
   Bancard.prototype.Checkout.createForm =
     function createCheckoutForm(divId, processId, styles) {
       internalMethods.createForm(divId, processId, styles, Settings.CheckoutIframeUrl);
+    };
+
+  Bancard.prototype.Cards.createForm =
+    function createNewCardForm(divId, processId, styles) {
+      internalMethods.createForm(divId, processId, styles, Settings.NewCardIframeUrl);
     };
 
   Bancard.prototype.destroy = function destroy() {
