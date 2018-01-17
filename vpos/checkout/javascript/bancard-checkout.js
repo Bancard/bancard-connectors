@@ -13,6 +13,9 @@
       }
 
       var url = event.data.return_url;
+      var status = event.data.message;
+
+      url = internalMethods.addParamToUrl(url, 'status', status);
 
       window.location.replace(url);
     },
@@ -21,28 +24,35 @@
       window.addEventListener('message', internalMethods.redirect);
     },
 
+    addParamToUrl: function addParamToUrl(url, param, value) {
+      var lastUrlChar = url.slice(-1);
+      var paramValue = param + '=' + value;
+
+      if (['&', '?'].indexOf(url) > -1) {
+        url += paramValue;
+      } else if (url.indexOf('?') > -1) {
+        url += '&' + paramValue;
+      } else {
+        url += '?' + paramValue;
+      }
+
+      return url;
+    },
+
     createForm: function createForm(divId, processId, styles, iframeUrl) {
       var iframeContainer;
       var iframe;
-      var lastIframeUrlChar;
 
       Settings.DivId = divId;
 
       iframeContainer = document.getElementById(divId);
       iframe = document.createElement('iframe');
 
-      lastIframeUrlChar = iframeUrl.slice(-1);
-
-      if (['&', '?'].indexOf(lastIframeUrlChar) > -1) {
-        iframeUrl += 'process_id=' + processId;
-      } else if (iframeUrl.indexOf('?') > -1) {
-        iframeUrl += '&process_id=' + processId;
-      } else {
-        iframeUrl += '?process_id=' + processId;
-      }
+      iframeUrl = internalMethods.addParamToUrl(iframeUrl, 'process_id', processId);
 
       if (typeof styles !== 'undefined') {
-        iframeUrl += '&styles=' + encodeURIComponent(JSON.stringify(styles));
+        styles = encodeURIComponent(JSON.stringify(styles));
+        iframeUrl = internalMethods.addParamToUrl(iframeUrl, 'styles', styles);
       }
 
       iframe.src = iframeUrl;
