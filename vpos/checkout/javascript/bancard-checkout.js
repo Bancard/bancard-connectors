@@ -3,7 +3,6 @@
 
   var Settings = {
     CheckoutIframeUrl: BancardUrl + '/checkout/new',
-    NewCardIframeUrl: BancardUrl + '/checkout/register_card/new',
     DivId: ''
   };
 
