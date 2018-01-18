@@ -3,24 +3,33 @@
 
   var Settings = {
     CheckoutIframeUrl: BancardUrl + '/checkout/new',
-    DivId: null
+    DivId: null,
+    Handler: 'default'
   };
 
   var internalMethods = {
-    redirect: function redirect(event) {
-      if (event.origin !== BancardUrl) {
-        return;
-      }
-
-      var url = event.data.return_url;
-      var status = event.data.message;
+    redirect: function redirect(data) {
+      var url = data.return_url;
+      var status = data.message;
 
       url = internalMethods.addParamToUrl(url, 'status', status);
       location.assign(url);
     },
 
     setListener: function setListener() {
-      window.addEventListener('message', internalMethods.redirect);
+      window.addEventListener('message', internalMethods.responseHandler);
+    },
+
+    responseHandler: function responseHandler(event) {
+      if (event.origin !== BancardUrl) {
+        return;
+      }
+
+      if (Settings.Handler === 'default') {
+        internalMethods.redirect(event.data);
+      } else {
+        Settings.Handler(event.data);
+      }
     },
 
     addParamToUrl: function addParamToUrl(url, param, value) {
@@ -38,8 +47,9 @@
       return url;
     },
 
-    createForm: function createForm(divId, processId, styles, iframeUrl) {
-      var iframeContainer, iframe;
+  createForm: function createForm(divId, processId, iframeUrl, options) {
+      var iframeContainer;
+      var iframe;
 
       if (typeof divId !== 'string' || divId === '') {
         throw new InvalidParameter('Div id');
@@ -61,9 +71,15 @@
 
       iframeUrl = internalMethods.addParamToUrl(iframeUrl, 'process_id', processId);
 
-      if (typeof styles !== 'undefined') {
-        styles = encodeURIComponent(JSON.stringify(styles));
-        iframeUrl = internalMethods.addParamToUrl(iframeUrl, 'styles', styles);
+      if (options !== undefined) {
+        if (options.styles !== undefined) {
+          styles = encodeURIComponent(JSON.stringify(styles));
+          iframeUrl = internalMethods.addParamToUrl(iframeUrl, 'styles', styles);
+        }
+
+        if (options.responseHandler !== undefined) {
+          Settings.Handler = options.responseHandler;
+        }
       }
 
       iframe.src = iframeUrl;
@@ -96,7 +112,7 @@
   Bancard.prototype.destroy = function destroy() {
     var iframeContainer = document.getElementById(Settings.DivId);
 
-    window.removeEventListener('message', internalMethods.redirect);
+    window.removeEventListener('message', internalMethods.responseHandler);
 
     if (iframeContainer) {
       internalMethods.clearElement(iframeContainer);
