@@ -105,8 +105,8 @@
   Bancard.prototype.Checkout = function Checkout() {};
 
   Bancard.prototype.Checkout.createForm =
-    function createCheckoutForm(divId, processId, styles) {
-      internalMethods.createForm(divId, processId, Settings.CheckoutIframeUrl, styles);
+    function createCheckoutForm(divId, processId, options) {
+      internalMethods.createForm(divId, processId, Settings.CheckoutIframeUrl, options);
     };
 
   Bancard.prototype.destroy = function destroy() {
