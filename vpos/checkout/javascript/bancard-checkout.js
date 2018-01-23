@@ -112,8 +112,8 @@
     };
 
   Bancard.prototype.Cards.createForm =
-    function createNewCardForm(divId, processId, styles) {
-      internalMethods.createForm(divId, processId, styles, Settings.NewCardIframeUrl);
+    function createNewCardForm(divId, processId, options) {
+      internalMethods.createForm(divId, processId, Settings.NewCardIframeUrl, options);
     };
 
   Bancard.prototype.destroy = function destroy() {
