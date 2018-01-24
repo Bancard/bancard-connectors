@@ -1,10 +1,14 @@
 ((function bancard(window) {
   var BancardUrl = 'https://desa.infonet.com.py:8085';
 
+  var Constants = {
+    DefaultIframeMinHeight: 175
+  };
+
   var Settings = {
     CheckoutIframeUrl: BancardUrl + '/checkout/new',
     DivId: null,
-    Handler: 'default'
+    handler: 'default'
   };
 
   var internalMethods = {
@@ -16,6 +20,11 @@
       location.assign(url);
     },
 
+    updateMinHeight: function updateMinHeight(offset) {
+      var iframe = document.querySelectorAll('#' + Settings.DivId + ' iframe')[0];
+      iframe.style.minHeight = Constants.DefaultIframeMinHeight + offset + 'px';
+    },
+
     setListener: function setListener() {
       window.addEventListener('message', internalMethods.responseHandler);
     },
@@ -25,31 +34,39 @@
         return;
       }
 
-      if (Settings.Handler === 'default') {
+      if (typeof event.data.offset !== 'undefined') {
+        internalMethods.updateMinHeight(event.data.offset);
+        return;
+      }
+
+      if (Settings.handler === 'default') {
         internalMethods.redirect(event.data);
       } else {
-        Settings.Handler(event.data);
+        Settings.handler(event.data);
       }
     },
 
     addParamToUrl: function addParamToUrl(url, param, value) {
       var lastUrlChar = url.slice(-1);
       var paramValue = param + '=' + value;
+      var newUrl = url;
 
       if (['&', '?'].indexOf(lastUrlChar) > -1) {
-        url += paramValue;
+        newUrl += paramValue;
       } else if (url.indexOf('?') > -1) {
-        url += '&' + paramValue;
+        newUrl += '&' + paramValue;
       } else {
-        url += '?' + paramValue;
+        newUrl += '?' + paramValue;
       }
 
-      return url;
+      return newUrl;
     },
 
-  createForm: function createForm(divId, processId, iframeUrl, options) {
+    createForm: function createForm(divId, processId, iframeUrl, options) {
       var iframeContainer;
       var iframe;
+      var newIframeUrl;
+      var styles;
 
       if (typeof divId !== 'string' || divId === '') {
         throw new InvalidParameter('Div id');
@@ -69,22 +86,23 @@
 
       iframe = document.createElement('iframe');
 
-      iframeUrl = internalMethods.addParamToUrl(iframeUrl, 'process_id', processId);
+      newIframeUrl = internalMethods.addParamToUrl(iframeUrl, 'process_id', processId);
 
-      if (options !== undefined) {
-        if (options.styles !== undefined) {
-          styles = encodeURIComponent(JSON.stringify(styles));
-          iframeUrl = internalMethods.addParamToUrl(iframeUrl, 'styles', styles);
+      if (typeof options !== 'undefined') {
+        if (typeof options.styles !== 'undefined') {
+          styles = encodeURIComponent(JSON.stringify(options.styles));
+          newIframeUrl = internalMethods.addParamToUrl(newIframeUrl, 'styles', styles);
         }
 
-        if (options.responseHandler !== undefined) {
-          Settings.Handler = options.responseHandler;
+        if (typeof options.responseHandler !== 'undefined') {
+          Settings.handler = options.responseHandler;
         }
       }
 
-      iframe.src = iframeUrl;
+      iframe.src = newIframeUrl;
       iframe.style.width = '100%';
       iframe.style.height = '100%';
+      iframe.style.minHeight = Constants.DefaultIframeMinHeight + 'px';
       iframe.style.borderWidth = '0px';
 
       iframeContainer.innerHTML = '';
