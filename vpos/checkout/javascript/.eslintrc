@@ -1,6 +1,7 @@
 {
-  "extends": "eslint-config-airbnb-es5",
+  "extends": "eslint-config-airbnb",
   "env": {
-    "jest": true
+    "jest": true,
+    "browser": true,
   }
 }

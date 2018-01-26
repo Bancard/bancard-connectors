@@ -1,8 +1,8 @@
-require('./bancard-checkout');
+require('../bancard-checkout');
 
 describe('When valid div', () => {
   document.body.innerHTML = '<div id="targetDiv" />';
-  window.BancardCheckout.init('targetDiv', '1234');
+  window.Bancard.Checkout.createForm('targetDiv', '1234');
 
   const checkIframeCreated = () => {
     expect(document.querySelectorAll('iframe').length).toBe(1);
@@ -14,7 +14,7 @@ describe('When valid div', () => {
 
   test('Iframe points to correct URL', () => {
     expect(document.querySelectorAll('iframe')[0].getAttribute('src'))
-      .toBe('https://desa.infonet.com.py:8085/checkout/new?is_test_client=true&process_id=1234');
+      .toBe('https://desa.infonet.com.py:8085/checkout/new?process_id=1234');
   });
 
   test('It redirects to correct URL', (done) => {
@@ -30,7 +30,7 @@ describe('When valid div', () => {
 
   describe('When destroying the library', () => {
     test("It's correctly destroyed", (done) => {
-      window.BancardCheckout.destroy();
+      window.Bancard.destroy();
 
       expect(document.querySelectorAll('iframe').length).toBe(0);
 
@@ -45,11 +45,11 @@ describe('When valid div', () => {
     });
 
     test("Calling destroy again doesn't break the page", () => {
-      window.BancardCheckout.destroy();
+      window.Bancard.destroy();
     });
 
     test('It can be reinitialized correctly', () => {
-      window.BancardCheckout.init('targetDiv', '1234');
+      window.Bancard.Checkout.createForm('targetDiv', '1234');
 
       checkIframeCreated();
     });
@@ -58,7 +58,19 @@ describe('When valid div', () => {
 
 describe('When invalid div', () => {
   test('It throws exception', () => {
-    expect(() => { window.BancardCheckout.init('nonexistentDiv', ''); } )
-      .toThrowError(window.BancardCheckout.exceptions.DivDoesNotExist);
+    expect(() => { window.Bancard.Checkout.createForm('nonexistentDiv', '1234'); })
+      .toThrowError(window.Bancard.Exceptions.DivDoesNotExist);
+  });
+});
+
+describe('When invalid process_id', () => {
+  test('It throws exception', () => {
+    expect(() => { window.Bancard.Checkout.createForm('targetDiv', ''); })
+      .toThrowError(window.Bancard.Exceptions.InvalidParameter);
+  });
+
+  test('It throws exception', () => {
+    expect(() => { window.Bancard.Checkout.createForm('targetDiv', 23); })
+      .toThrowError(window.Bancard.Exceptions.InvalidParameter);
   });
 });

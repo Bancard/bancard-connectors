@@ -4,16 +4,25 @@
   "author": "Bruno Bradach <bruno.bradach@moove-it.com>",
   "license": "MIT",
   "devDependencies": {
+    "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.3",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "clean-webpack-plugin": "^0.1.17",
     "eslint": "^4.13.1",
-    "eslint-config-airbnb-es5": "^1.2.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.5.1",
     "jest": "^22.0.0",
-    "uglify-js": "^3.2.2"
+    "uglify-js": "^3.2.2",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.11.1"
   },
   "scripts": {
-    "build": "node ./scripts/build.js",
+    "start": "webpack-dev-server --open",
+    "build": "webpack -p --config webpack.prod.config.js",
     "lint": "node ./scripts/lint.js",
-    "test": "jest"
+    "test": "jest -b"
   }
 }
