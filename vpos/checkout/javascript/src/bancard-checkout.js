@@ -1,11 +1,13 @@
+require("babel-polyfill");
+
 import exceptions from './bancard-checkout-exceptions';
 
 ((function bancard(window) {
   const BancardUrl = 'https://desa.infonet.com.py:8085';
-  const DefaultIframeMinHeight = 175;
 
   const Settings = {
     CheckoutIframeUrl: `${BancardUrl}/checkout/new`,
+    AllowedStylesUrl: `${BancardUrl}/checkout/allowed_styles`,
     DivId: null,
     handler: 'default',
   };
@@ -17,9 +19,9 @@ import exceptions from './bancard-checkout-exceptions';
       window.location.assign(url);
     },
 
-    updateMinHeight: function updateMinHeight(offset) {
+    updateMinHeight: (iframeHeight) => {
       const iframe = document.querySelectorAll(`#${Settings.DivId} iframe`)[0];
-      iframe.style.minHeight = `${DefaultIframeMinHeight + offset}px`;
+      iframe.style.minHeight = `${iframeHeight}px`;
     },
 
     setListener: () => {
@@ -31,8 +33,8 @@ import exceptions from './bancard-checkout-exceptions';
         return;
       }
 
-      if (typeof event.data.offset !== 'undefined') {
-        internalMethods.updateMinHeight(event.data.offset);
+      if (typeof event.data.iframeHeight !== 'undefined') {
+        internalMethods.updateMinHeight(event.data.iframeHeight);
         return;
       }
 
@@ -59,6 +61,51 @@ import exceptions from './bancard-checkout-exceptions';
       return newUrl;
     },
 
+    request: async (method, url) => {
+      const response = await fetch(url, { method: method });
+      const data = await response.json();
+
+      return data;
+    },
+
+    validateStyles: (styles) => {
+      internalMethods
+        .request('GET', Settings.AllowedStylesUrl)
+          .then((data) => {
+            const allowedStyles = data.allowed_styles;
+
+            internalMethods.checkInvalidStyles(allowedStyles, styles);
+          });
+    },
+
+    checkInvalidStyles: (allowedStyles, styles) => {
+      const stylesNames = Object.keys(styles);
+
+      stylesNames.forEach((styleName) => {
+        if (typeof allowedStyles[styleName] === 'undefined') {
+          console.warn('Invalid Style Object: the style ' + styleName + ' is not allowed.');
+        } else {
+          let showWarning = false;
+
+          if (allowedStyles[styleName] === 'color') {
+            if (styles[styleName].match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/) == null ) {
+              showWarning = true;
+            }
+          } else {
+            if (!['true', 'false', true, false].includes(styles[styleName])) {
+              showWarning = true;
+            }
+          }
+
+          if (showWarning) {
+            console.warn(
+              'Invalid Value: the value ' + styles[styleName] + ' for the style ' + styleName + ' is not valid.'
+            );
+          }
+        }
+      });
+    },
+
     createForm: (divId, processId, iframeUrl, options) => {
       if (typeof divId !== 'string' || divId === '') {
         throw new exceptions.InvalidParameter('Div id');
@@ -79,14 +126,15 @@ import exceptions from './bancard-checkout-exceptions';
       const iframe = window.document.createElement('iframe');
 
       let newIframeUrl = internalMethods.addParamToUrl(iframeUrl, 'process_id', processId);
+      if (typeof options !== 'undefined') {
+        if (typeof options.styles !== 'undefined') {
+          internalMethods.validateStyles(options.styles);
 
-      if (options !== undefined) {
-        if (options.styles !== undefined) {
           const styles = encodeURIComponent(JSON.stringify(options.styles));
           newIframeUrl = internalMethods.addParamToUrl(newIframeUrl, 'styles', styles);
         }
 
-        if (options.responseHandler !== undefined) {
+        if (typeof options.responseHandler !== 'undefined') {
           Settings.handler = options.responseHandler;
         }
       }
@@ -94,7 +142,6 @@ import exceptions from './bancard-checkout-exceptions';
       iframe.src = newIframeUrl;
       iframe.style.width = '100%';
       iframe.style.height = '100%';
-      iframe.style.minHeight = `${DefaultIframeMinHeight}px`;
       iframe.style.borderWidth = '0px';
 
       iframeContainer.innerHTML = '';
