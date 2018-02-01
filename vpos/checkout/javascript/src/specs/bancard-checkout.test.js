@@ -1,8 +1,10 @@
 require('../bancard-checkout');
 
 describe('When valid div', () => {
-  document.body.innerHTML = '<div id="targetDiv" />';
-  window.Bancard.Checkout.createForm('targetDiv', '1234');
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="targetDiv" />';
+    window.Bancard.Checkout.createForm('targetDiv', '1234');
+  });
 
   const checkIframeCreated = () => {
     expect(document.querySelectorAll('iframe').length).toBe(1);
@@ -26,6 +28,37 @@ describe('When valid div', () => {
     });
 
     window.postMessage({ return_url: 'http://example.com' }, '*');
+  });
+
+  describe('When invalid styles', () => {
+    beforeEach(() => {
+      window.Bancard.Checkout.createForm('targetDiv', '1234', options);
+    });
+
+    const allowedStyles = {
+      'header-background-color': 'color',
+      'header-text-color': 'color',
+      'header-show': 'boolean',
+    }
+
+    const customStyles = {
+      'wrong-style': '#FFFFFF',
+      'header-text-color': '#FFFFFF',
+      'header-show': 'wrong-value',
+    }
+
+    const options = { styles: customStyles }
+
+    global.console = { warn: jest.fn() }
+    fetch.mockResponse(JSON.stringify({ allowed_styles: allowedStyles }))
+
+    test('It throws a warning', () => {
+      expect(global.console.warn)
+        .toHaveBeenCalledWith('Invalid Style Object: the style wrong-style is not allowed.');
+
+      expect(global.console.warn)
+        .toHaveBeenCalledWith('Invalid Value: the value wrong-value for the style header-show is not valid.');
+    });
   });
 
   describe('When destroying the library', () => {

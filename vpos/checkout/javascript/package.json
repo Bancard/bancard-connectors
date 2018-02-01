@@ -7,6 +7,8 @@
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.3",
     "babel-loader": "^7.1.2",
+    "babel-plugin-transform-async-to-generator": "^6.5.0",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "clean-webpack-plugin": "^0.1.17",
     "eslint": "^4.13.1",
@@ -15,6 +17,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.5.1",
     "jest": "^22.0.0",
+    "jest-fetch-mock": "^1.4.1",
     "uglify-js": "^3.2.2",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.11.1"
@@ -24,5 +27,11 @@
     "build": "webpack -p --config webpack.prod.config.js",
     "lint": "node ./scripts/lint.js",
     "test": "jest -b"
+  },
+  "jest": {
+    "automock": false,
+    "setupFiles": [
+      "./setupJest.js"
+    ]
   }
 }
