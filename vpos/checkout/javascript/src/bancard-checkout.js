@@ -16,7 +16,7 @@ import exceptions from './bancard-checkout-exceptions';
     redirect: (data) => {
       const { message, return_url: returnUrl } = data;
       const url = internalMethods.addParamToUrl(returnUrl, 'status', message);
-      window.location.assign(url);
+      window.location.replace(url);
     },
 
     updateMinHeight: (iframeHeight) => {
