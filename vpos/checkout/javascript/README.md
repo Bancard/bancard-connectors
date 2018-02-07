@@ -1,3 +1,4 @@
+
 # VPOS 2.0 JS library
 
 ## Getting Started
@@ -13,7 +14,7 @@ There are no prerequisites to use this library.
 You can either include this library from:
 
 ```
-https://desa.infonet.com.py:8085/checkout/javascript/bancard-checkout.js
+https://vpos.infonet.com.py/checkout/javascript/dist/bancard-checkout-1.0.0.js
 ```
 
 Or download the latest version from the `/dist` folder and host it on your own web
@@ -21,21 +22,21 @@ server.
 
 ### Usage in development
 
-• Clone the project.
-• Navigate to `vpos/checkout/javascript`.
-• Install node (we suggest you use NVM - https://github.com/creationix/nvm#installation).
-• Insall yarn (https://yarnpkg.com/lang/en/docs/install/).
-• Run `yarn install`.
-• Run `yarn start`.
-• Include the script from `http://localhost:8080/bancard-checkout-${version}-dev.js`.
+* Clone the project.
+* Navigate to `vpos/checkout/javascript`.
+* Install node (we suggest you use NVM - https://github.com/creationix/nvm#installation).
+* Install yarn (https://yarnpkg.com/lang/en/docs/install/).
+* Run `yarn install`.
+* Run `yarn start`.
+* Include the script from `http://localhost:8080/bancard-checkout-${version}-dev.js`.
 
 ## Running the tests
 
-• Run `yarn test`.
+* Run `yarn test`.
 
 ### Running the linter
 
-• Run `yarn lint`.
+* Run `yarn lint`.
 
 ## Deployment
 
