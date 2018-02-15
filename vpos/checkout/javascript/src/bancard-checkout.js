@@ -1,11 +1,11 @@
 import exceptions from './bancard-checkout-exceptions';
 
-let BancardUrl = 'https://desa.infonet.com.py:8085';
+import constants from './constants';
+
+const CHECKOUT_IFRAME_URL = `${constants.BANCARD_URL}/checkout/new`;
+const ALLOWED_STYLES_URL = `${constants.BANCARD_URL}/checkout/allowed_styles`;
 
 const Settings = {
-  CheckoutIframeUrl: `${BancardUrl}/checkout/new`,
-  AllowedStylesUrl: `${BancardUrl}/checkout/allowed_styles`,
-  DivId: null,
   handler: 'default',
 };
 
@@ -16,22 +16,22 @@ const internalMethods = {
     window.location.replace(url);
   },
 
-  updateMinHeight: (iframeHeight) => {
-    const iframe = document.querySelectorAll(`#${Settings.DivId} iframe`)[0];
+  updateMinHeight: (iframeHeight, divId) => {
+    const iframe = document.querySelectorAll(`#${divId} iframe`)[0];
     iframe.style.minHeight = `${iframeHeight}px`;
   },
 
-  setListener: () => {
-    window.addEventListener('message', internalMethods.responseHandler);
+  setListener: (divId) => {
+    window.addEventListener('message', e => internalMethods.responseHandler(e, divId));
   },
 
-  responseHandler: (event) => {
-    if (event.origin !== BancardUrl) {
+  responseHandler: (event, divId) => {
+    if (event.origin !== constants.BANCARD_URL) {
       return;
     }
 
     if (typeof event.data.iframeHeight !== 'undefined') {
-      internalMethods.updateMinHeight(event.data.iframeHeight);
+      internalMethods.updateMinHeight(event.data.iframeHeight, divId);
       return;
     }
 
@@ -67,7 +67,7 @@ const internalMethods = {
 
   validateStyles: (styles) => {
     internalMethods
-      .request('GET', Settings.AllowedStylesUrl)
+      .request('GET', ALLOWED_STYLES_URL)
       .then((data) => {
         const allowedStyles = data.allowed_styles;
 
@@ -99,7 +99,7 @@ const internalMethods = {
     });
   },
 
-  createForm: (divId, processId, iframeUrl, options) => {
+  createForm: (divId, processId, options) => {
     if (typeof divId !== 'string' || divId === '') {
       throw new exceptions.InvalidParameter('Div id');
     }
@@ -107,8 +107,6 @@ const internalMethods = {
     if (typeof processId !== 'string' || processId === '') {
       throw new exceptions.InvalidParameter('Process id');
     }
-
-    Settings.DivId = divId;
 
     const iframeContainer = window.document.getElementById(divId);
 
@@ -118,7 +116,7 @@ const internalMethods = {
 
     const iframe = window.document.createElement('iframe');
 
-    let newIframeUrl = internalMethods.addParamToUrl(iframeUrl, 'process_id', processId);
+    let newIframeUrl = internalMethods.addParamToUrl(CHECKOUT_IFRAME_URL, 'process_id', processId);
     if (typeof options !== 'undefined') {
       if (typeof options.styles !== 'undefined') {
         internalMethods.validateStyles(options.styles);
@@ -139,7 +137,7 @@ const internalMethods = {
     iframeContainer.innerHTML = '';
     iframeContainer.appendChild(iframe);
 
-    internalMethods.setListener();
+    internalMethods.setListener(divId);
   },
 
   clearElement: (element) => {
@@ -149,30 +147,26 @@ const internalMethods = {
   },
 };
 
-const Bancard = function Bancard() {};
-
-Bancard.prototype.Exceptions = exceptions;
-
-Bancard.prototype.Checkout = function Checkout() {};
-
-Bancard.prototype.Checkout.createForm = (divId, processId, options) => {
-  internalMethods.createForm(divId, processId, Settings.CheckoutIframeUrl, options);
-};
-
-Bancard.prototype.destroy = () => {
-  const iframeContainer = window.document.getElementById(Settings.DivId);
-
-  window.removeEventListener('message', internalMethods.responseHandler);
-
-  if (iframeContainer) {
-    internalMethods.clearElement(iframeContainer);
+class Bancard {
+  get Checkout() {
+    return {
+      createForm: (divId, processId, options) => {
+        this.divId = divId;
+        internalMethods.createForm(divId, processId, options);
+      },
+    };
   }
+  destroy() {
+    const iframeContainer = window.document.getElementById(this.divId);
 
-  Settings.DivId = null;
-};
+    window.removeEventListener('message', internalMethods.responseHandler);
 
-Bancard.prototype.setBancardUrl = (url) => {
-  BancardUrl = url;
-};
+    if (iframeContainer) {
+      internalMethods.clearElement(iframeContainer);
+    }
+
+    this.divId = null;
+  }
+}
 
 export default Bancard;
