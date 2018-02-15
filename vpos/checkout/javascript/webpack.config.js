@@ -2,7 +2,7 @@ const Path = require('path');
 const Webpack = require('webpack');
 
 module.exports = {
-  entry: './src/bancard-checkout.js',
+  entry: ['babel-polyfill', './src/bancard-checkout.js'],
   devtool: 'inline-source-map',
   devServer: {
     contentBase: './dist',
