@@ -11,8 +11,14 @@ const Settings = {
 
 const internalMethods = {
   redirect: (data) => {
-    const { message, return_url: returnUrl } = data;
-    const url = internalMethods.addParamToUrl(returnUrl, 'status', message);
+    const { message, details, return_url: returnUrl } = data;
+
+    let url = internalMethods.addParamToUrl(returnUrl, 'status', message);
+
+    if (typeof details !== 'undefined') {
+      url = internalMethods.addParamToUrl(url, 'description', details);
+    }
+
     window.location.replace(url);
   },
 
