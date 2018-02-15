@@ -33,15 +33,17 @@ import exceptions from './bancard-checkout-exceptions';
         return;
       }
 
-      if (typeof event.data.iframeHeight !== 'undefined') {
-        internalMethods.updateMinHeight(event.data.iframeHeight);
+      const eventData = JSON.parse(event.data);
+
+      if (typeof eventData.iframeHeight !== 'undefined') {
+        internalMethods.updateMinHeight(eventData.iframeHeight);
         return;
       }
 
       if (Settings.handler === 'default') {
-        internalMethods.redirect(event.data);
+        internalMethods.redirect(eventData);
       } else {
-        Settings.handler(event.data);
+        Settings.handler(eventData);
       }
     },
 
