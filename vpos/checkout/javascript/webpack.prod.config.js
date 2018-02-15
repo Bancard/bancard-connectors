@@ -2,9 +2,10 @@ const Path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
-  entry: ['babel-polyfill', './src/bancard-checkout.js'],
+  entry: ['babel-polyfill', './src/index.js'],
+  devtool: 'inline-source-map',
   plugins: [
-    new CleanWebpackPlugin(['dist'], { exclude: ['.keep'] }),
+    new CleanWebpackPlugin(['dist'], { exclude: ['.keep', 'index.html'] }),
   ],
   output: {
     filename: `bancard-checkout-${process.env.npm_package_version}.js`,
