@@ -1,4 +1,6 @@
 import Bancard from '../bancard-checkout';
+import exceptions from '../bancard-checkout-exceptions';
+import constants from '../constants';
 
 describe('Bancard', () => {
   let instance;
@@ -23,7 +25,7 @@ describe('Bancard', () => {
     });
 
     test('It redirects to correct URL', (done) => {
-      instance.setBancardUrl(''); // This is needed because jsdom doesn't have an origin
+      constants.BANCARD_URL = '';
       const url = 'http://example.com';
       const message = 'sample';
 
@@ -90,7 +92,7 @@ describe('Bancard', () => {
 
     test('It throws exception', () => {
       expect(() => { instance.Checkout.createForm('nonexistentDiv', '1234'); })
-        .toThrowError(instance.Exceptions.DivDoesNotExist);
+        .toThrowError(exceptions.DivDoesNotExist);
     });
   });
 
@@ -99,12 +101,12 @@ describe('Bancard', () => {
 
     test('It throws exception', () => {
       expect(() => { instance.Checkout.createForm('targetDiv', ''); })
-        .toThrowError(instance.Exceptions.InvalidParameter);
+        .toThrowError(exceptions.InvalidParameter);
     });
 
     test('It throws exception', () => {
       expect(() => { instance.Checkout.createForm('targetDiv', 23); })
-        .toThrowError(instance.Exceptions.InvalidParameter);
+        .toThrowError(exceptions.InvalidParameter);
     });
   });
 });
