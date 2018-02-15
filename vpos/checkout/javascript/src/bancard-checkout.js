@@ -15,8 +15,14 @@ import exceptions from './bancard-checkout-exceptions';
 
   const internalMethods = {
     redirect: (data) => {
-      const { message, return_url: returnUrl } = data;
-      const url = internalMethods.addParamToUrl(returnUrl, 'status', message);
+      const { message, details, return_url: returnUrl } = data;
+
+      let url = internalMethods.addParamToUrl(returnUrl, 'status', message);
+
+      if (typeof details !== 'undefined') {
+        url = internalMethods.addParamToUrl(url, 'description', details);
+      }
+
       window.location.assign(url);
     },
 
@@ -52,7 +58,7 @@ import exceptions from './bancard-checkout-exceptions';
       let newUrl = url;
 
       if (['&', '?'].indexOf(lastUrlChar) > -1) {
-        newUrl += paramValue;
+        newUrl = `${newUrl}${paramValue}`;
       } else if (url.indexOf('?') > -1) {
         newUrl = `${newUrl}&${paramValue}`;
       } else {
