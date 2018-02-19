@@ -1,20 +1,20 @@
 const Path = require('path');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 const Webpack = require('webpack');
 
 module.exports = {
   entry: ['babel-polyfill', './src/index.js'],
   devtool: 'inline-source-map',
-  devServer: {
-    contentBase: './dist',
-    hot: true,
-  },
   plugins: [
-    new Webpack.NamedModulesPlugin(),
-    new Webpack.HotModuleReplacementPlugin(),
+    new CleanWebpackPlugin([`dist/bancard-checkout-${process.env.npm_package_version}.js`]),
+    new Webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env.VPOS_PORTAL': JSON.stringify('https://vpos.infonet.com.py'),
+    }),
   ],
   output: {
-    filename: `bancard-checkout-${process.env.npm_package_version}-dev.js`,
-    path: Path.resolve(__dirname, 'dist')
+    filename: `bancard-checkout-${process.env.npm_package_version}.js`,
+    path: Path.resolve(__dirname, 'dist'),
   },
   module: {
     rules: [
@@ -22,7 +22,7 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules|specs/,
         loader: 'babel-loader',
-      }
+      },
     ],
   },
 };
