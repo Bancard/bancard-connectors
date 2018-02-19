@@ -1,3 +1,3 @@
 export default {
-  BANCARD_URL: 'https://desa.infonet.com.py:8085',
+  BANCARD_URL: process.env.VPOS_PORTAL,
 };

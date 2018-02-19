@@ -24,7 +24,9 @@
   },
   "scripts": {
     "start": "webpack-dev-server --open",
-    "build": "webpack -p --config webpack.prod.config.js",
+    "build-prod": "webpack -p --config webpack.config.js",
+    "build-sandbox": "webpack -p --config webpack.sandbox.config.js",
+    "build-dev": "webpack -p --config webpack.dev.config.js",
     "lint": "node ./scripts/lint.js",
     "test": "jest -b"
   },
