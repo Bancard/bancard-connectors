@@ -4,18 +4,12 @@ const Webpack = require('webpack');
 
 module.exports = {
   entry: ['babel-polyfill', './src/index.js'],
-  devServer: {
-    contentBase: './dist',
-    hot: true,
-  },
   plugins: [
     new CleanWebpackPlugin([`dist/bancard-checkout-${process.env.npm_package_version}-sandbox.js`]),
     new Webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development'),
+      'process.env.NODE_ENV': JSON.stringify('production'),
       'process.env.VPOS_PORTAL': JSON.stringify('https://vpos.infonet.com.py:8888'),
     }),
-    new Webpack.NamedModulesPlugin(),
-    new Webpack.HotModuleReplacementPlugin(),
     new Webpack.optimize.UglifyJsPlugin(),
   ],
   output: {
