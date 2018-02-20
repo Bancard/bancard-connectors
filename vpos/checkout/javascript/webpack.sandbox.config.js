@@ -4,7 +4,6 @@ const Webpack = require('webpack');
 
 module.exports = {
   entry: ['babel-polyfill', './src/index.js'],
-  devtool: 'inline-source-map',
   devServer: {
     contentBase: './dist',
     hot: true,
@@ -17,6 +16,7 @@ module.exports = {
     }),
     new Webpack.NamedModulesPlugin(),
     new Webpack.HotModuleReplacementPlugin(),
+    new Webpack.optimize.UglifyJsPlugin(),
   ],
   output: {
     filename: `bancard-checkout-${process.env.npm_package_version}-sandbox.js`,
