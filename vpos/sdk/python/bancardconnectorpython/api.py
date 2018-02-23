@@ -25,8 +25,8 @@ import os
 import json
 import hashlib
 import requests
-from bancardpythonconnector.util import *
-from bancardpythonconnector.exceptions import *
+from bancardconnectorpython.util import *
+from bancardconnectorpython.exceptions import *
 
 
 class BancardAPI(object):
@@ -115,10 +115,10 @@ class BancardAPI(object):
 	def generate_charge_token(self, marketplace_charge_id, amount, description, approved_url, cancelled_url, currency="PYG"):
 		BancardAPI.validate_marketplace_charge_id(marketplace_charge_id)
 		BancardAPI.validate_amount(amount)
-		BancardAPI.validate_currency(currency)
 		BancardAPI.validate_description(description)
 		BancardAPI.validate_approved_url(approved_url)
 		BancardAPI.validate_cancelled_url(cancelled_url)
+		BancardAPI.validate_currency(currency)
 
 		amount_str = "%s.00" % currency_decimal_to_string(currency, amount)
 		bancard_body_request = {

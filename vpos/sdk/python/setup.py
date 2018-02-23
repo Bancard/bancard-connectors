@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name='bancardconnectorpython',
-	version='0.1',
+	version='0.1.8',
 	author='Victor Cajes',
 	author_email='vcajes@gmail.com',
 	packages=['bancardconnectorpython'],
@@ -11,9 +11,8 @@ setup(
 	url='https://github.com/vcajes/bancard-connector-python',
 	license='MIT License',
 	description='The Bancard Python connector provides Python APIs to create, process and manage payments.',
-	long_description='The Bancard Python connector provides Python APIs to create, process and manage payments.',
 	package_data={'bancardconnectorpython': []},
-	install_requires=['requests>=2.18.4'],
+	install_requires=['requests[security]>=2.18.4'],
 	classifiers=[
 		'Intended Audience :: Developers',
 		'Natural Language :: English',
@@ -25,5 +24,5 @@ setup(
 		'Programming Language :: Python :: Implementation :: PyPy',
 		'Topic :: Software Development :: Libraries :: Python Modules'
 	],
-	keywords=['bancard', 'python', 'rest', 'sdk', 'charges', 'webhook']
+	keywords=['bancard', 'paraguay', 'python', 'rest', 'sdk', 'charges', 'webhook']
 )

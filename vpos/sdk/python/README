@@ -17,7 +17,11 @@ You can either include this library from:
 https://github.com/vcajes/bancard-connector-python
 ```
 
-Or install the latest version from the PYPI repository.
+Or install the library from the [PYPI repository](https://pypi.python.org/pypi/bancardconnectorpython/):
+
+```
+pip3 install bancardconnectorpython
+```
 
 ### Usage in development
 
@@ -26,7 +30,7 @@ Or install the latest version from the PYPI repository.
 * Import and use library in your source code:
 ```
 from decimal import Decimal
-from bancardpythonconnector import connector, BancardAPI, BancardAPIException
+from bancardconnectorpython import connector, BancardAPI, BancardAPIException
 
 # this will autoconfigure the connector from the following OS environment variables:
 # BANCARD_ENVIRONMENT=sandbox|production
@@ -53,9 +57,19 @@ except BancardAPIException:
 ```
 
 
+## Sample code
+
+* View the files under the `./tests/` folder for examples of how to use it.
+
+## Running tests
+
+* Downlaod and install Python 3.x (https://www.python.org/downloads/)
+* Install the library from PYPI: `pip3 install bancardconnectorpython`
+* Run any of the tests: `python3 ./tests/test_bancard_rollback.py `
+
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/vcajes/bancard-connector-python/tags).
+For the versions available, see the [tags on this repository](https://github.com/vcajes/bancard-connector-python/tags)
 
 ## Authors
 
@@ -63,5 +77,5 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 

@@ -20,37 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
-from decimal import Decimal
-from bancardpythonconnector.exceptions import BancardAPIInvalidParameterException
-
-
-# number of decimals for an amount of a given currency
-CURRENCIES_DECIMALS = {
-	"PYG": 0,
-}
-
-
-def merge_dict(first_dict, *next_dicts):
-	"""
-	Returns the merge of all the dictionaries
-	Usage::
-		>>> util.merge_dict({"key1": "val1"}, {"key2": "val2"}, {"Bancard": "API"})
-		{'key1': 'val1', 'key2': 'val2', 'Bancard': 'API'}
-	"""
-	result_dict = dict()
-	for curr_dict in (first_dict,) + next_dicts:
-		result_dict.update(curr_dict)
-	return result_dict
-
-
-def currency_decimal_to_string(currency, decimal_value):
-	if currency not in CURRENCIES_DECIMALS:
-		raise BancardAPIInvalidParameterException("The currency is not allowed.")
-
-	if not isinstance(decimal_value, Decimal):
-		raise BancardAPIInvalidParameterException("The amount is not a Decimal value.")
-
-	decimals = CURRENCIES_DECIMALS[currency] if currency in CURRENCIES_DECIMALS else 2
-	ret = ("%." + str(decimals) + "f") % decimal_value
-	return ret
+from bancardconnectorpython.util import *
+from bancardconnectorpython.exceptions import *
+from bancardconnectorpython.api import *
