@@ -44,14 +44,14 @@ api = BancardAPI(environment=BancardAPI.ENVIRONMENT_SANDBOX, public_key=your_pub
 try:
     marketplace_charge_id = "123" # your own custom charge ID
     amount = Decimal("1000") # the amount you want to charge
-    description = "Monthly Suscription" # a message you want to show to the payer
+    description = "Sample charge" # a message you want to show to the payer
     approved_url = "htpps://your-domain.com/webhooks/bancard/approved"  # bancard will redirect to the payer to this URL after finishing the payment
     cancelled_url = "htpps://your-domain.com/webhooks/bancard/cancelled"  # bancard will redirecto to the payer to this URL is the payment do not succeed
 
     # bancard_process_id is the charge ID that bancard generated
     # payment_url is the URL that you should show to the payer in case you want him to pay within the Bancard website
     # bancard_response is the JSON object that contains the exact response from bancard
-    bancard_process_id, payment_url, bancard_response = generate_charge_token(marketplace_charge_id, amount, description, approved_url, cancelled_url)
+    bancard_process_id, payment_url, bancard_response = api.generate_charge_token(marketplace_charge_id, amount, description, approved_url, cancelled_url)
 except BancardAPIException:
     pass # see the exceptions.py file to see all the exceptions that could occur
 ```
