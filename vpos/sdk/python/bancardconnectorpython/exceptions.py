@@ -22,36 +22,56 @@
 
 
 class BancardAPIException(Exception):
-	def __init__(self, msg="", data=None, status=400, code=""):
+	def __init__(self, msg="", data=None):
+		"""
+			Constructor of the BancardAPIException.
+
+			:param msg: one dictionary
+				:type msg: str
+			:param data: any type of data to be passed in the exception. Typically would be a dict.
+				:type data: dict
+		"""
 		self.msg = msg
 		self.data = data
-		self.code = code
-		self.status = status
 
 	def get_message(self):
+		"""
+			Returns the message of the exception.
+
+			:return the message of the exception.
+				:rtype str
+		"""
 		return self.msg
 
 	def to_dict(self):
-		return {
-			"msg": self.msg,
-			"data": self.data,
-			"code": self.code,
-			"status": self.status,
-		}
+		"""
+			Returns the dict representation of the exception.
+
+			:return the dict representation of the exception
+				:rtype dict
+		"""
+		return {"msg": self.msg, "data": self.data}
 
 	def __str__(self):
+		"""
+			Returns the message of the exception when calling to the function str(BancardAPIException).
+
+			:return the message of the exception.
+				:rtype str
+		"""
 		return str(self.msg)
 
 
+# exceptions for the configuration of the BancardAPI
 class BancardAPIConfigurationException(BancardAPIException):
 	pass
 
 
+# exceptions for the charge request operation
 class BancardAPIInvalidParameterException(BancardAPIException):
 	pass
 
 
-# exceptions for the charge request operation
 class BancardAPIMarketplaceChargeIDAlreadyExistsException(BancardAPIException):
 	pass
 

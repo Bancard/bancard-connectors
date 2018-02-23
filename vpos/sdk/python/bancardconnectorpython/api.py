@@ -66,14 +66,36 @@ class BancardAPI(object):
 	}
 
 	def __init__(self, options=None, **kwargs):
-		self.options = merge_dict(options or {}, kwargs)
-		self.environment = self.options.get("environment", BancardAPI.ENVIRONMENT_SANDBOX)  # by default the sandbox environment
-		self.public_key = self.options["public_key"]  # mandatory, raise exception if missing
-		self.private_key = self.options["private_key"]  # mandatory, raise exception if missing
-		self.urls = BancardAPI.BANCARD_URLS[self.environment]
+		"""
+			Constructor of the BancardAPI class.
+
+			:param options: Dictionary with configuration parameters for the API
+				:type options: dict
+			:param kwargs: Dictionary with any extra parameters that could be unpacked for the API. The required values are:
+				* environment: sandbox or production
+				* public_key: the public key given by Bancard
+				* private_key: the private key given by Bancard
+				:type kwargs: dict
+			:raises BancardAPIConfigurationException: if the merge of options and kwargs does not contains the keys: environment public_key private_key
+		"""
+
+		try:
+			self.options = merge_dict(options or {}, kwargs)
+			self.environment = self.options.get("environment", BancardAPI.ENVIRONMENT_SANDBOX)  # by default the sandbox environment
+			self.public_key = self.options["public_key"]  # mandatory, raise exception if missing
+			self.private_key = self.options["private_key"]  # mandatory, raise exception if missing
+			self.urls = BancardAPI.BANCARD_URLS[self.environment]
+		except (KeyError, ValueError, TypeError):
+			raise BancardAPIConfigurationException("The configuration parameters for the BancardAPI are not valid.")
 
 	@staticmethod
 	def __call_bancard_webservice(params, wsurl):
+		"""
+			Sends the JSON params object to the WSURL of Bancard and returns the JSON parsed response
+			:param params: values to send to the Bancard API
+			:param wsurl: URL of the Bancard WebService
+			:return the JSON object obtained after parsing the Bancard response
+		"""
 		bancard_body_request = json.dumps(params) if type(params) is dict else (params if type(params) is str else str(params))
 		headers = {"Content-Type": "application/json"}
 		response = requests.post(wsurl, data=bancard_body_request, headers=headers)
@@ -82,37 +104,90 @@ class BancardAPI(object):
 
 	@staticmethod
 	def validate_marketplace_charge_id(marketplace_charge_id):
+		"""
+			Validates that the marketplace_charge_id can be converted to an integer value (as required by the Bancard docs)
+			:param marketplace_charge_id: values to send to the Bancard API
+			:raises BancardAPIInvalidParameterException: if the marketplace_charge_id does not contains a valid value
+		"""
+
 		try:
 			int(marketplace_charge_id)
-		except:
+		except (TypeError, ValueError):
 			raise BancardAPIInvalidParameterException("The marketplace charge ID is required and must be a valid integer.")
 
 	@staticmethod
 	def validate_currency(currency):
+		"""
+			Validates that the currency belong to the allowed ones by Bancard (as required by the Bancard docs)
+			:param currency: values to send to the Bancard API
+			:raises BancardAPIInvalidParameterException: if the currency does not contains a valid value
+		"""
 		if type(currency) is not str or currency not in BancardAPI.BANCARD_ALLOWED_CURRENCIES:
 			raise BancardAPIInvalidParameterException("The currency must be any of the following strings: %s" % BancardAPI.BANCARD_ALLOWED_CURRENCIES)
 
 	@staticmethod
 	def validate_amount(amount):
+		"""
+			Validates that the amount is a Decimal object greater than zero (as required by the Bancard docs)
+			:param amount: values to send to the Bancard API
+			:raises BancardAPIInvalidParameterException: if the amount does not contains a valid value
+		"""
 		if not isinstance(amount, Decimal) or amount <= Decimal(0):
 			raise BancardAPIInvalidParameterException("The amount must be a decimal greater than Decimal(0).")
 
 	@staticmethod
 	def validate_description(description):
+		"""
+			Validates that the description has a minimum/maximum length (as required by the Bancard docs)
+			:param description: values to send to the Bancard API
+			:raises BancardAPIInvalidParameterException: if the description does not contains a valid value
+		"""
 		if type(description) is not str or not 0 <= len(description) <= 20:
 			raise BancardAPIInvalidParameterException("The description must be a string between [0,20] characters.")
 
 	@staticmethod
 	def validate_approved_url(approved_url):
+		"""
+			Validates that the approved_url has a maximum length (as required by the Bancard docs)
+			:param approved_url: values to send to the Bancard API
+			:raises BancardAPIInvalidParameterException: if the approved_url does not contains a valid value
+		"""
 		if type(approved_url) is not str or not 1 <= len(approved_url) <= 255:
 			raise BancardAPIInvalidParameterException("The approved_url must be a valid URL string containing [1,255] characters.")
 
 	@staticmethod
 	def validate_cancelled_url(cancelled_url):
+		"""
+			Validates that the cancelled_url has a maximum length (as required by the Bancard docs)
+			:param cancelled_url: values to send to the Bancard API
+			:raises BancardAPIInvalidParameterException: if the cancelled_url does not contains a valid value
+		"""
 		if type(cancelled_url) is not str or not 1 <= len(cancelled_url) <= 255:
 			raise BancardAPIInvalidParameterException("The cancelled_url must be a valid URL string containing [1,255] characters.")
 
 	def generate_charge_token(self, marketplace_charge_id, amount, description, approved_url, cancelled_url, currency="PYG"):
+		"""
+			Generates a Bancard Proces ID Token so the end-user payer could pay later.
+
+			:param marketplace_charge_id: The marketplace's custom ID of this charge request
+				:type marketplace_charge_id: int or str
+			:param amount: The amount that the payer should pay
+				:type amount: Decimal
+			:param description: The text message that the payer will se while making the payment
+				:type description: str
+			:param approved_url: The URL to which Bancard will redirect to the payer after the payer sucessfully completes the payment
+				:type approved_url: str
+			:param cancelled_url: The URL to which Bancard will redirect to the payer when the payment is not completed successfully for some reason
+				:type cancelled_url: str
+			:param currency: The currency of the amount to charge in the format ISO-4217
+				:type currency: str
+			:return: a tuple of: bancard_process_id, payment_url, bancard_response
+				:rtype tuple (str, str, dict)
+			:raises BancardAPIInvalidParameterException: if any of the input parameters is not valid
+			:raises BancardAPIMarketplaceChargeIDAlreadyExistsException: if there is already another charge request in Bancard with the same marketplace_charge_id
+			:raises BancardAPIChargeRejectedException: if Bancard rejected the process id generation request
+		"""
+
 		BancardAPI.validate_marketplace_charge_id(marketplace_charge_id)
 		BancardAPI.validate_amount(amount)
 		BancardAPI.validate_description(description)
@@ -137,7 +212,7 @@ class BancardAPI(object):
 
 		bancard_response = BancardAPI.__call_bancard_webservice(bancard_body_request, self.urls[BancardAPI.CHARGE_TOKEN_GENERATOR_KEY])
 		if bancard_response.get("status", None) == "success":
-			# construct the payment URL that should be opener to the payer
+			# build the payment URL that should be opener to the payer
 			bancard_process_id = str(bancard_response["process_id"])
 			payment_url = "%s%s" % (self.urls[BancardAPI.PAYMENT_WEB_URL_KEY], bancard_process_id)
 
@@ -161,6 +236,25 @@ class BancardAPI(object):
 		raise BancardAPIChargeRejectedException(bancard_msg_error, bancard_response)
 
 	def get_charge_status(self, marketplace_charge_id, amount, currency="PYG"):
+		"""
+			Calls to the confirmations Bancard WebService to check the status of the charge request in order to know if it is pending/payed/rejected/rolledback.
+
+			:param marketplace_charge_id: The marketplace's custom ID of this charge request
+				:type marketplace_charge_id: int or str
+			:param amount: The amount that the payer should pay
+				:type amount: Decimal
+			:param currency: The currency of the amount to charge in the format ISO-4217
+				:type currency: str
+			:return: a tuple of: already_payed, authorization_number, bancard_response
+				:rtype tuple (bool, str, dict)
+			:raises BancardAPIInvalidParameterException: if any of the input parameters is not valid
+			:raises BancardAPIChargeInconsistentValuesException: if the payment of marketplace_charge_id has been payed but does not match the currency/amount parameters
+			:raises BancardAPIPaymentMethodNotEnabledException: if Bancard rejeted the payment because the payer's payment method was not enabled for making payments
+			:raises BancardAPIPaymentTransactionInvalidException: if the payment has been rejected by Bancard because the transaction was not valid for some reason
+			:raises BancardAPIPaymentMethodNotEnoughFundsException: if the payment has been rejected by Bancard because the payment method did not have enough funds
+			:raises BancardAPIPaymentRejectecUnknownReasonException: if the payment has been rejected by Bancard due to an unhandled/unknown reason
+		"""
+
 		BancardAPI.validate_marketplace_charge_id(marketplace_charge_id)
 		BancardAPI.validate_amount(amount)
 		BancardAPI.validate_currency(currency)
@@ -204,6 +298,21 @@ class BancardAPI(object):
 		raise BancardAPIPaymentRejectecUnknownReasonException("Bancard reported that the payment has been rejected: %s" % bancard_tx_messages.get("dsc", ""), bancard_response)
 
 	def rollback_charge(self, marketplace_charge_id, amount, currency="PYG"):
+		"""
+			Calls to the rollback Bancard WebService to rollback a given charge request.
+
+			:param marketplace_charge_id: The marketplace's custom ID of this charge request
+				:type marketplace_charge_id: int or str
+			:param amount: The amount that the payer should pay
+				:type amount: Decimal
+			:param currency: The currency of the amount to charge in the format ISO-4217
+				:type currency: str
+			:return: a tuple of: successfull_rollback, bancard_response
+				:rtype tuple (bool, dict)
+			:raises BancardAPIInvalidParameterException: if any of the input parameters is not valid
+			:raises BancardAPINotRolledBackException: if Bancard denied the rollback request for some reason (i.e.: already couponned)
+		"""
+
 		BancardAPI.validate_marketplace_charge_id(marketplace_charge_id)
 		BancardAPI.validate_amount(amount)
 		BancardAPI.validate_currency(currency)
@@ -232,7 +341,29 @@ class BancardAPI(object):
 		# bancard was not able to roll-back the payment
 		raise BancardAPINotRolledBackException("Bancard was not able to roll-back the payment: %s" % bancard_tx_messages.get("dsc", ""), bancard_response)
 
-	def validate_vpos_webhook(self, bancard_data, original_marketplace_charge_id, original_amount, original_currency="PYG"):
+	def process_vpos_webhook(self, bancard_data, original_marketplace_charge_id, original_amount, original_currency="PYG"):
+		"""
+			Manage the webhook data received from the Bancard VPOS after a successfull/rejected payment from the end-user
+
+			:param bancard_data: The full content received in the Bancard wehbook
+				:type bancard_data: str or dict
+			:param original_marketplace_charge_id: The marketplace's custom ID of this charge request
+				:type original_marketplace_charge_id: int or str
+			:param original_amount: The amount that the payer should pay
+				:type original_amount: Decimal
+			:param original_currency: The currency of the amount to charge in the format ISO-4217
+				:type original_currency: str
+			:return: a tuple of: successfull_rollback, bancard_response
+				:rtype tuple (bool, dict)
+			:raises BancardAPIInvalidParameterException: if any of the input parameters is not valid
+			:raises BancardAPIInvalidWebhookDataException: if the webhook data is not how it is supposed to be (someone might be trying to hack you)
+			:raises BancardAPIInvalidWebhookTokenException: if the token generated as the specs is not equal to the one that Bancard sent (someone might be trying to hack you)
+			:raises BancardAPIPaymentMethodNotEnabledException: if Bancard rejeted the payment because the payer's payment method was not enabled for making payments
+			:raises BancardAPIPaymentTransactionInvalidException: if the payment has been rejected by Bancard because the transaction was not valid for some reason
+			:raises BancardAPIPaymentMethodNotEnoughFundsException: if the payment has been rejected by Bancard because the payment method did not have enough funds
+			:raises BancardAPIPaymentRejectecUnknownReasonException: if the payment has been rejected by Bancard due to an unhandled/unknown reason
+		"""
+
 		BancardAPI.validate_marketplace_charge_id(original_marketplace_charge_id)
 		BancardAPI.validate_amount(original_amount)
 		BancardAPI.validate_currency(original_currency)
@@ -270,12 +401,23 @@ class BancardAPI(object):
 
 	@staticmethod
 	def get_marketplace_charge_id_from_bancard_webhook(bancard_data):
+		"""
+			Obtains the marketplace_charge_id from the data received in the Bancard webhook.
+			This method could be useful to get your charge object from your DB
+
+			:param bancard_data: The json data received by the bancard webhook
+				:type bancard_data: str or dict
+			:return: the marketplace charge id
+				:rtype str
+			:raises BancardAPIInvalidWebhookDataException: if there was a problem while parsing the Bancard webhook data (someone might be trying to hack you)
+		"""
+
 		try:
 			# parse the data received by Bancard
 			bancard_operation_data = json.loads(bancard_data) if type(bancard_data) is str else bancard_data
 			bancard_operation = bancard_operation_data["operation"]
 			marketplace_charge_id = bancard_operation["shop_process_id"]
-			return marketplace_charge_id
+			return str(marketplace_charge_id)
 		except:
 			raise BancardAPIInvalidWebhookDataException("Invalid Bancard webhook data.", bancard_data)
 
@@ -285,7 +427,14 @@ __api__ = None
 
 @property
 def connector():
-	""" Returns the global BancardAPI. If there is no API yet, create one by using the OS environment variables. """
+	"""
+		Returns the global BancardAPI. If there is no API yet, create one by using the OS environment variables.
+
+		:return: the marketplace charge id
+			:rtype str
+		:raises BancardAPIConfigurationException: if there was not a default api yet, and any of the required OS environment variables were missing
+	"""
+
 	global __api__
 	if __api__ is None:
 		try:
@@ -296,12 +445,27 @@ def connector():
 			raise BancardAPIConfigurationException("The BancardAPI requires the following \
 				OS environment variables: BANCARD_ENVIRONMENT BANCARD_PUBLIC_KEY BANCARD_PRIVATE_KEY")
 
+		# creates the BancardAPI reference to the global variable __api__
 		__api__ = BancardAPI(environment=environment, public_key=public_key, private_key=private_key)
 	return __api__
 
 
 def set_config(options=None, **config):
-	""" Create new BancardAPI object with the given configuration """
+	"""
+		Create new BancardAPI object with the given configuration parameters.
+
+		:param options: Dictionary with configuration parameters for the API
+				:type options: dict
+		:param config: Dictionary with any extra parameters that could be unpacked for the API. The required values are:
+			* environment: sandbox or production
+			* public_key: the public key given by Bancard
+			* private_key: the private key given by Bancard
+			:type config: dict
+		:return: the reference to the just created BancardAPI instance
+			:rtype str
+		:raises BancardAPIConfigurationException: if the BancardAPI couldn't be created due to missing configuration parameters
+	"""
+
 	global __api__
 	__api__ = BancardAPI(options or dict(), **config)
 	return __api__
