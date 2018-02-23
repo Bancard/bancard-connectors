@@ -26,7 +26,7 @@ Or install the latest version from the PYPI repository.
 * Import and use library in your source code:
 ```
 from decimal import Decimal
-from bancardpythonconnector import connector, BancardAPI
+from bancardpythonconnector import connector, BancardAPI, BancardAPIException
 
 # this will autoconfigure the connector from the following OS environment variables:
 # BANCARD_ENVIRONMENT=sandbox|production
@@ -48,6 +48,8 @@ try:
     # payment_url is the URL that you should show to the payer in case you want him to pay within the Bancard website
     # bancard_response is the JSON object that contains the exact response from bancard
     bancard_process_id, payment_url, bancard_response = generate_charge_token(marketplace_charge_id, amount, description, approved_url, cancelled_url)
+except BancardAPIException:
+    pass # see the exceptions.py file to see all the exceptions that could occur
 ```
 
 

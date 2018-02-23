@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name='bancardconnectorpython',
-	version='1.0',
+	version='0.1',
 	author='Victor Cajes',
 	author_email='vcajes@gmail.com',
 	packages=['bancardconnectorpython'],
