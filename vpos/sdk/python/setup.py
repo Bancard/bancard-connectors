@@ -1,16 +1,22 @@
 from distutils.core import setup
 
 
+def readme():
+	with open('README.rst') as f:
+		return f.read()
+
+
 setup(
 	name='bancardconnectorpython',
-	version='0.3',
+	version='0.5.1',
 	author='Victor Cajes',
 	author_email='vcajes@gmail.com',
 	packages=['bancardconnectorpython'],
 	scripts=[],
 	url='https://github.com/vcajes/bancard-connector-python',
-	license='MIT License',
+	license="Documentation: https://github.com/vcajes/bancard-connector-python/tree/python-connector/vpos/sdk/python",
 	description='The Bancard Python connector provides Python APIs to create, process and manage payments.',
+	long_description=readme(),
 	package_data={'bancardconnectorpython': []},
 	install_requires=['requests[security]>=2.18.4'],
 	classifiers=[
@@ -28,7 +34,6 @@ setup(
 		'Programming Language :: Python :: 3.6',
 		'Programming Language :: Python :: Implementation :: PyPy',
 		'Topic :: Software Development :: Libraries :: Python Modules'
-		'Topic :: Software Development :: Libraries :: Bancard'
 	],
 	keywords=['bancard', 'paraguay', 'python', 'rest', 'sdk', 'charges', 'webhook']
 )

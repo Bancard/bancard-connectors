@@ -1,9 +1,11 @@
 
-# Bancard VPOS 1.0 Python library
+# Bancard VPOS v1.0 - Bancard Python Connector v0.4 library
 
 ## Getting Started
 
 This library allows developers to integrates their Python backend applications to the Bancard VPOS API.
+
+This library works with the following Python versions: 2.6, 2.7, 3.3, 3.4, 3.5, 3.6
 
 ### Prerequisites
 
@@ -25,7 +27,7 @@ pip3 install bancardconnectorpython
 
 ### Usage in development
 
-* Downlaod and install Python 3.x (https://www.python.org/downloads/).
+* Download and install [Python (2.6 <= version <= 3.6)](https://www.python.org/downloads/).
 * Run `pip3 install bancardpythonconnector`.
 * Import and use library in your source code:
 ```
@@ -36,36 +38,117 @@ from bancardconnectorpython import connector, BancardAPI, BancardAPIException
 # BANCARD_ENVIRONMENT=sandbox|production
 # BANCARD_PUBLIC_KEY=your_public_key
 # BANCARD_PRIVATE_KEY=your_private_key
-api = bancardpythonconnector.connector
+bancard_api = bancardpythonconnector.connector
 
 # or you could just create your own BancardAPI
-api = BancardAPI(environment=BancardAPI.ENVIRONMENT_SANDBOX, public_key=your_public_key, private_key=your_private_key)
+bancard_api = BancardAPI(environment=BancardAPI.ENVIRONMENT_SANDBOX, public_key=your_public_key, private_key=your_private_key)
+```
+
+## Sample code - Bancard Single Buy
+
+```
+# bancard sample charge information
+marketplace_charge_id = "123"  # your own custom charge ID
+amount = Decimal("1000")  # the amount you want to charge
+currency = "PYG"  # currently the only allowed currency by Bancard
+description = "Sample charge"  # a message you want to show to the payer
+approved_url = "htpps://your-domain.com/webhooks/bancard/approved"  # bancard will redirect to the payer to this URL after finishing the paymentcancelled_url = "htpps://your-domain.com/webhooks/bancard/cancelled"  # bancard will redirect to the payer to this URL is the payment do not succeed
+cancelled_url = "htpps://your-domain.com/webhooks/bancard/cancelled"  # bancard will redirect to the payer to this URL is the payment do not succeed
 
 try:
-    marketplace_charge_id = "123" # your own custom charge ID
-    amount = Decimal("1000") # the amount you want to charge
-    description = "Sample charge" # a message you want to show to the payer
-    approved_url = "htpps://your-domain.com/webhooks/bancard/approved"  # bancard will redirect to the payer to this URL after finishing the payment
-    cancelled_url = "htpps://your-domain.com/webhooks/bancard/cancelled"  # bancard will redirecto to the payer to this URL is the payment do not succeed
-
     # bancard_process_id is the charge ID that bancard generated
     # payment_url is the URL that you should show to the payer in case you want him to pay within the Bancard website
     # bancard_response is the JSON object that contains the exact response from bancard
-    bancard_process_id, payment_url, bancard_response = api.generate_charge_token(marketplace_charge_id, amount, description, approved_url, cancelled_url)
-except BancardAPIException:
-    pass # see the exceptions.py file to see all the exceptions that could occur
+    bancard_process_id, payment_url, bancard_response = bancard_api.generate_charge_token(marketplace_charge_id, amount, description, approved_url, cancelled_url, currency)
+except BancardAPIInvalidParameterException as bancard_error1:
+    print(bancard_error1.msg)  # message returned by Bancard if any
+    print(bancard_error1.data)  # JSON object that contains the exact response from bancard
+except BancardAPIChargeRejectedException as bancard_error2:
+    print(bancard_error2.msg)  # message returned by Bancard if any
+    print(bancard_error2.data)  # JSON object that contains the exact response from bancard
+except BancardAPIMarketplaceChargeIDAlreadyExistsException as bancard_error3:
+    print(bancard_error3.msg)  # message returned by Bancard if any
+    print(bancard_error3.data)  # JSON object that contains the exact response from bancard
+
+    # the marketplace ID "123" was already used previously in Bancard, so you would want to check the status of that previous charge
+    # already_payed is a True/False boolean that defines if the charge has already been payed by someone
+    # authorization_number will be the string with the Bancard authorization code. This will be None if already_payed is False
+    # bancard_response is the JSON object that contains the exact response from bancard
+    already_payed, authorization_number, bancard_response = bancard_api.get_charge_status(marketplace_charge_id, amount, currency)
+except BancardAPIException as bancard_error4:
+    print(bancard_error4.msg)  # message returned by Bancard if any
+    print(bancard_error4.data)  # JSON object that contains the exact response from bancard
 ```
 
+## Sample code - Bancard Confirmations
 
-## Sample code
+```
+# bancard sample confirmations call to obtain the status of the charge
+marketplace_charge_id = "123"  # your own custom charge ID
+amount = Decimal("1000")  # the amount you want to charge
+currency = "PYG"  # currently the only allowed currency by Bancard
 
-* View the files under the `./tests/` folder for examples of how to use it.
+try:
+    # already_payed is a True/False boolean that defines if the charge has already been payed by someone
+    # authorization_number will be the string with the Bancard authorization code. This will be None if already_payed is False
+    # bancard_response is the JSON object that contains the exact response from bancard
+    already_payed, authorization_number, bancard_response = bancard_api.get_charge_status(marketplace_charge_id, amount, currency)
+except BancardAPIInvalidParameterException as bancard_error1:
+    print(bancard_error1.msg)  # message returned by Bancard if any
+    print(bancard_error1.data)  # JSON object that contains the exact response from bancard
+except BancardAPIChargeInconsistentValuesException as bancard_error2:
+    print(bancard_error2.msg)  # message returned by Bancard if any
+    print(bancard_error2.data)  # JSON object that contains the exact response from bancard
+except BancardAPIPaymentMethodNotEnabledException as bancard_error3:
+    print(bancard_error3.msg)  # message returned by Bancard if any
+    print(bancard_error3.data)  # JSON object that contains the exact response from bancard
+except BancardAPIPaymentTransactionInvalidException as bancard_error4:
+    print(bancard_error4.msg)  # message returned by Bancard if any
+    print(bancard_error4.data)  # JSON object that contains the exact response from bancard
+except BancardAPIPaymentMethodNotEnoughFundsException as bancard_error5:
+    print(bancard_error5.msg)  # message returned by Bancard if any
+    print(bancard_error5.data)  # JSON object that contains the exact response from bancard
+except BancardAPIPaymentRejectecUnknownReasonException as bancard_error6:
+    print(bancard_error6.msg)  # message returned by Bancard if any
+    print(bancard_error6.data)  # JSON object that contains the exact response from bancard
+except BancardAPIPaymentRejectecUnknownReasonException as bancard_error7:
+    print(bancard_error7.msg)  # message returned by Bancard if any
+    print(bancard_error7.data)  # JSON object that contains the exact response from bancard
+except BancardAPIException as bancard_error8:
+    print(bancard_error8.msg)  # message returned by Bancard if any
+    print(bancard_error8.data)  # JSON object that contains the exact response from bancard
+```
+
+## Sample code - Bancard Rollback
+
+```
+# bancard sample confirmations call to obtain the status of the charge
+marketplace_charge_id = "123"  # your own custom charge ID
+amount = Decimal("1000")  # the amount you want to charge
+currency = "PYG"  # currently the only allowed currency by Bancard
+
+try:
+    # successfull_rollback is a True/False boolean that defines if the charge has been successfully rolled-back by Bancard
+    # bancard_response is the JSON object that contains the exact response from bancard
+    successfull_rollback, bancard_response = bancard_api.rollback_charge(marketplace_charge_id, amount, currency)
+except BancardAPIInvalidParameterException as bancard_error1:
+    print(bancard_error1.msg)  # message returned by Bancard if any
+    print(bancard_error1.data)  # JSON object that contains the exact response from bancard
+except BancardAPINotRolledBackException as bancard_error:
+    print(bancard_error2.msg)  # message returned by Bancard if any
+    print(bancard_error2.data)  # JSON object that contains the exact response from bancard
+except BancardAPIException as bancard_error:
+    print(bancard_error3.msg)  # message returned by Bancard if any
+    print(bancard_error3.data)  # JSON object that contains the exact response from bancard
+```
 
 ## Running tests
 
-* Downlaod and install Python 3.x (https://www.python.org/downloads/)
-* Install the library from PYPI: `pip3 install bancardconnectorpython`
-* Run any of the tests: `python3 ./tests/test_bancard_rollback.py `
+* Downlaod and install [Python (2.6 <= version <= 3.6)](https://www.python.org/downloads/)
+* Install the library from PYPI: `pip install bancardconnectorpython`
+* View the Python tests under the `./tests/` folder for examples of how to use it.
+* Modify the global variables `TEST_BANCARD_PUBLIC_KEY` and `TEST_BANCARD_PRIVATE_KEY` from the test files with the values provided by Bancard.
+* Run any of the tests, i.e.: `python /path/to/tests/test_bancard_rollback.py `
 
 ## Versioning
 
@@ -77,5 +160,5 @@ For the versions available, see the [tags on this repository](https://github.com
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
 
