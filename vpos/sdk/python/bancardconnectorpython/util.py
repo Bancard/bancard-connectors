@@ -21,11 +21,23 @@
 # SOFTWARE.
 
 
+import sys
 from decimal import Decimal
 from bancardconnectorpython.exceptions import BancardAPIInvalidParameterException
 
 # number of decimals for an amount of a given currency
 CURRENCIES_DECIMALS = {"PYG": 0}
+
+
+def is_python_version_greater_igual_than_3x():
+	"""
+		Returns True if the Python version that runs this library is greater or equal than 3.x
+
+		:return: a boolean that states if the python version if >= 3.x
+			:rtype bool
+	"""
+
+	return sys.version_info >= (3,)
 
 
 def merge_dict(first_dict, *next_dicts):

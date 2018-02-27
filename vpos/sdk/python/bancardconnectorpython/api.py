@@ -196,10 +196,15 @@ class BancardAPI(object):
 		BancardAPI.validate_currency(currency)
 
 		amount_str = "%s.00" % currency_decimal_to_string(currency, amount)
+
+		bancard_token = "%s%s%s%s" % (self.private_key, marketplace_charge_id, amount_str, currency)
+		if is_python_version_greater_igual_than_3x():
+			bancard_token = bytes(bancard_token, "UTF-8")
+
 		bancard_body_request = {
 			"public_key": self.public_key,
 			"operation": {
-				"token": hashlib.md5(bytes("%s%s%s%s" % (self.private_key, marketplace_charge_id, amount_str, currency), "UTF-8")).hexdigest(),
+				"token": hashlib.md5(bancard_token).hexdigest(),
 				"shop_process_id": str(marketplace_charge_id),
 				"currency": currency,
 				"amount": amount_str,
@@ -260,10 +265,15 @@ class BancardAPI(object):
 		BancardAPI.validate_currency(currency)
 
 		amount_str = "%s.00" % currency_decimal_to_string(currency, amount)
+
+		bancard_token = "%s%s%s" % (self.private_key, marketplace_charge_id, "get_confirmation")
+		if is_python_version_greater_igual_than_3x():
+			bancard_token = bytes(bancard_token, "UTF-8")
+
 		bancard_body_request = {
 			"public_key": self.public_key,
 			"operation": {
-				"token": hashlib.md5(bytes("%s%s%s" % (self.private_key, marketplace_charge_id, "get_confirmation"), "UTF-8")).hexdigest(),
+				"token": hashlib.md5(bancard_token).hexdigest(),
 				"shop_process_id": marketplace_charge_id
 			}
 		}
@@ -318,10 +328,15 @@ class BancardAPI(object):
 		BancardAPI.validate_currency(currency)
 
 		amount_str = "%s.00" % currency_decimal_to_string(currency, amount)
+
+		bancard_token = "%s%s%s%s" % (self.private_key, marketplace_charge_id, "rollback", amount_str)
+		if is_python_version_greater_igual_than_3x():
+			bancard_token = bytes(bancard_token, "UTF-8")
+
 		bancard_body_request = {
 			"public_key": self.public_key,
 			"operation": {
-				"token": hashlib.md5(bytes("%s%s%s%s" % (self.private_key, marketplace_charge_id, "rollback", amount_str), "UTF-8")).hexdigest(),
+				"token": hashlib.md5(bancard_token).hexdigest(),
 				"shop_process_id": marketplace_charge_id
 			}
 		}
@@ -379,7 +394,11 @@ class BancardAPI(object):
 
 			# validate the token received by bancard
 			amount_str = "%s.00" % currency_decimal_to_string(original_currency, original_amount)
-			required_bancard_token = hashlib.md5(bytes("%s%s%s%s%s" % (self.private_key, original_marketplace_charge_id, "confirm", amount_str, original_currency), "UTF-8")).hexdigest()
+
+			required_bancard_token = "%s%s%s%s%s" % (self.private_key, original_marketplace_charge_id, "confirm", amount_str, original_currency)
+			if is_python_version_greater_igual_than_3x():
+				required_bancard_token = bytes(required_bancard_token, "UTF-8")
+
 			if bancard_operation["token"] != required_bancard_token:
 				raise BancardAPIInvalidWebhookTokenException("The Bancard Webhook did not pass the token validation: %s != %s" % (bancard_operation["token"], required_bancard_token))
 
