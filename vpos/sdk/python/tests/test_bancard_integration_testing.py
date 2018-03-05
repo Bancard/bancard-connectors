@@ -21,15 +21,14 @@
 # SOFTWARE.
 
 
+import sys
 import random
 import unittest
-from bancardconnectorpython import *
+from decimal import Decimal
+import bancardconnectorpython
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 
-
-TEST_BANCARD_PUBLIC_KEY = ""  # put here your bancard public key
-TEST_BANCARD_PRIVATE_KEY = ""  # put here your bancard private key
 
 # bancard testing credit card values
 TEST_BANCARD_CREDITCARD_NUMBER = "4907860500000016"
@@ -47,7 +46,8 @@ class TestBancardSingleBuy(unittest.TestCase):
 		approved_url = "http://localhost/redirect/bancard/%s/approved" % marketplace_charge_id
 		cancelled_url = "http://localhost/redirect/bancard/%s/cancelled" % marketplace_charge_id
 
-		bancard_api = BancardAPI(environment=BancardAPI.ENVIRONMENT_SANDBOX, public_key=TEST_BANCARD_PUBLIC_KEY, private_key=TEST_BANCARD_PRIVATE_KEY)
+		# configure the bancard API connector from the environment variables and get a reference to the connector
+		bancard_api = bancardconnectorpython.connector()
 
 		bancard_process_id, payment_url, bancard_response = bancard_api.generate_charge_token(marketplace_charge_id, amount, description, approved_url, cancelled_url, currency)
 		self.assertIsNotNone(bancard_process_id)
