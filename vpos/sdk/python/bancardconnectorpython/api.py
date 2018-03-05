@@ -25,45 +25,12 @@ import os
 import json
 import hashlib
 import requests
+from bancardconnectorpython.constants import *
 from bancardconnectorpython.util import *
 from bancardconnectorpython.exceptions import *
 
 
 class BancardAPI(object):
-	# possibles values for the environment class member
-	ENVIRONMENT_SANDBOX = "sandbox"
-	ENVIRONMENT_PRODUCTION = "production"
-
-	# currently PYG is the only allowed currency for Bancard
-	BANCARD_ALLOWED_CURRENCIES = ["PYG"]
-
-	# URL keys
-	ROLLBACK_KEY = "rollback"
-	CHARGE_TOKEN_GENERATOR_KEY = "single_buy"
-	PAYMENT_WEB_URL_KEY = "payment"
-	CONFIRMATIONS_KEY = "confirmation"
-
-	BANCARD_BASE_URL_SANDBOX = "https://vpos.infonet.com.py:8888"
-	BANCARD_BASE_URL_PRODUCTION = "https://vpos.infonet.com.py"
-
-	SANDBOX_URLS = {
-		ROLLBACK_KEY: "%s/vpos/api/0.3/single_buy/rollback" % BANCARD_BASE_URL_SANDBOX,
-		CHARGE_TOKEN_GENERATOR_KEY: "%s/vpos/api/0.3/single_buy" % BANCARD_BASE_URL_SANDBOX,
-		PAYMENT_WEB_URL_KEY: "%s/payment/single_buy?process_id=" % BANCARD_BASE_URL_SANDBOX,
-		CONFIRMATIONS_KEY: "%s/vpos/api/0.3/single_buy/confirmations" % BANCARD_BASE_URL_SANDBOX,
-	}
-
-	PRODUCTION_URLS = {
-		ROLLBACK_KEY: "%s/vpos/api/0.3/single_buy/rollback" % BANCARD_BASE_URL_PRODUCTION,
-		CHARGE_TOKEN_GENERATOR_KEY: "%s/vpos/api/0.3/single_buy" % BANCARD_BASE_URL_PRODUCTION,
-		PAYMENT_WEB_URL_KEY: "%s/payment/single_buy?process_id=" % BANCARD_BASE_URL_PRODUCTION,
-		CONFIRMATIONS_KEY: "%s/vpos/api/0.3/single_buy/confirmations" % BANCARD_BASE_URL_PRODUCTION,
-	}
-
-	BANCARD_URLS = {
-		ENVIRONMENT_SANDBOX: SANDBOX_URLS,
-		ENVIRONMENT_PRODUCTION: PRODUCTION_URLS
-	}
 
 	def __init__(self, options=None, **kwargs):
 		"""
@@ -81,10 +48,10 @@ class BancardAPI(object):
 
 		try:
 			self.options = merge_dict(options or {}, kwargs)
-			self.environment = self.options.get("environment", BancardAPI.ENVIRONMENT_SANDBOX)  # by default the sandbox environment
+			self.environment = self.options.get("environment", ENVIRONMENT_SANDBOX)  # by default the sandbox environment
 			self.public_key = self.options["public_key"]  # mandatory, raise exception if missing
 			self.private_key = self.options["private_key"]  # mandatory, raise exception if missing
-			self.urls = BancardAPI.BANCARD_URLS[self.environment]
+			self.urls = BANCARD_URLS[self.environment]
 		except (KeyError, ValueError, TypeError):
 			raise BancardAPIConfigurationException("The configuration parameters for the BancardAPI are not valid.")
 
@@ -122,8 +89,8 @@ class BancardAPI(object):
 			:param currency: values to send to the Bancard API
 			:raises BancardAPIInvalidParameterException: if the currency does not contains a valid value
 		"""
-		if type(currency) is not str or currency not in BancardAPI.BANCARD_ALLOWED_CURRENCIES:
-			raise BancardAPIInvalidParameterException("The currency must be any of the following strings: %s" % BancardAPI.BANCARD_ALLOWED_CURRENCIES)
+		if type(currency) is not str or currency not in BANCARD_ALLOWED_CURRENCIES:
+			raise BancardAPIInvalidParameterException("The currency must be any of the following strings: %s" % BANCARD_ALLOWED_CURRENCIES)
 
 	@staticmethod
 	def validate_amount(amount):
@@ -215,11 +182,11 @@ class BancardAPI(object):
 			}
 		}
 
-		bancard_response = BancardAPI.__call_bancard_webservice(bancard_body_request, self.urls[BancardAPI.CHARGE_TOKEN_GENERATOR_KEY])
+		bancard_response = BancardAPI.__call_bancard_webservice(bancard_body_request, self.urls[CHARGE_TOKEN_GENERATOR_KEY])
 		if bancard_response.get("status", None) == "success":
 			# build the payment URL that should be opener to the payer
 			bancard_process_id = str(bancard_response["process_id"])
-			payment_url = "%s%s" % (self.urls[BancardAPI.PAYMENT_WEB_URL_KEY], bancard_process_id)
+			payment_url = "%s%s" % (self.urls[PAYMENT_WEB_URL_KEY], bancard_process_id)
 
 			# return the bancard_process_id, payment_url and the full bancard json response
 			return bancard_process_id, payment_url, bancard_response
@@ -278,7 +245,7 @@ class BancardAPI(object):
 			}
 		}
 
-		bancard_response = BancardAPI.__call_bancard_webservice(bancard_body_request, self.urls[BancardAPI.CONFIRMATIONS_KEY])
+		bancard_response = BancardAPI.__call_bancard_webservice(bancard_body_request, self.urls[CONFIRMATIONS_KEY])
 		if bancard_response.get("status", None) == "success":
 			confirmation = bancard_response.get("confirmation", dict())
 			response_code = confirmation.get("response_code", None)
@@ -341,7 +308,7 @@ class BancardAPI(object):
 			}
 		}
 
-		bancard_response = BancardAPI.__call_bancard_webservice(bancard_body_request, self.urls[BancardAPI.ROLLBACK_KEY])
+		bancard_response = BancardAPI.__call_bancard_webservice(bancard_body_request, self.urls[ROLLBACK_KEY])
 
 		bancard_tx_status = bancard_response.get("status", "")
 		if bancard_tx_status == "success":
@@ -444,10 +411,13 @@ class BancardAPI(object):
 __api__ = None
 
 
-@property
 def connector():
 	"""
 		Returns the global BancardAPI. If there is no API yet, create one by using the OS environment variables.
+		The OS environment variables that should be configured are:
+			BANCARD_ENVIRONMENT: "sandbox" or "production"
+			BANCARD_PUBLIC_KEY: your_bancard_marketplace_public_key
+			BANCARD_PRIVATE_KEY: your_bancard_marketplace_private_key
 
 		:return: the marketplace charge id
 			:rtype str
@@ -457,12 +427,11 @@ def connector():
 	global __api__
 	if __api__ is None:
 		try:
-			environment = os.environ.get("BANCARD_ENVIRONMENT", BancardAPI.ENVIRONMENT_SANDBOX)  # possible values: ["sandbox", "production"], and by default "sandbox"
+			environment = os.environ.get("BANCARD_ENVIRONMENT", ENVIRONMENT_SANDBOX)  # possible values: ["sandbox", "production"], and by default "sandbox"
 			public_key = os.environ["BANCARD_PUBLIC_KEY"]
 			private_key = os.environ["BANCARD_PRIVATE_KEY"]
 		except KeyError:
-			raise BancardAPIConfigurationException("The BancardAPI requires the following \
-				OS environment variables: BANCARD_ENVIRONMENT BANCARD_PUBLIC_KEY BANCARD_PRIVATE_KEY")
+			raise BancardAPIConfigurationException("The BancardAPI requires the following OS environment variables: BANCARD_ENVIRONMENT BANCARD_PUBLIC_KEY BANCARD_PRIVATE_KEY")
 
 		# creates the BancardAPI reference to the global variable __api__
 		__api__ = BancardAPI(environment=environment, public_key=public_key, private_key=private_key)
