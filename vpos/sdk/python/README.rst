@@ -37,8 +37,8 @@ Usage in development
 
 -  Downlaod and install `Python (2.6 <= version <=
    3.6) <https://www.python.org/downloads/>`__.
--  Run ``pip3 install bancardpythonconnector``.
--  Import and use library in your source code: ``from decimal import Decimal from bancardconnectorpython import connector, BancardAPI, BancardAPIException``.
+-  Run ``pip install bancardpythonconnector``.
+-  Import and use library in your source code: ``import bancardconnectorpython``.
 
 This will autoconfigure the connector from the following OS environment variables:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -49,12 +49,12 @@ BANCARD\_PUBLIC\_KEY=your\_public\_key
 
 BANCARD\_PRIVATE\_KEY=your\_private\_key
 
-bancard\_api = bancardpythonconnector.connector
+bancard\_api = bancardconnectorpython.connector()
 
 or you could just create your own BancardAPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-bancard\_api = BancardAPI(environment=BancardAPI.ENVIRONMENT\_SANDBOX,
+bancard\_api = bancardconnectorpython.BancardAPI(environment=BancardAPI.ENVIRONMENT\_SANDBOX,
 public\_key=your\_public\_key, private\_key=your\_private\_key)
 
 
@@ -63,13 +63,10 @@ Running tests
 
 -  Download and install `Python (2.6 <= version <= 3.6) <https://www.python.org/downloads/>`__
 -  Install the library from PYPI: ``pip install bancardconnectorpython``
--  View the Python tests under the ``./tests/`` folder for examples of
-   how to use it.
--  Modify the global variables ``TEST_BANCARD_PUBLIC_KEY`` and
-   ``TEST_BANCARD_PRIVATE_KEY`` from the test files with the values
-   provided by Bancard.
+-  Set the following two OS environment variables ``BANCARD_PUBLIC_KEY`` and
+   ``BANCARD_PRIVATE_KEY`` with the values provided by Bancard.
 -  Run any of the tests, i.e.:
-   ``python /path/to/tests/test_bancard_rollback.py``
+   ``python /path/to/tests/test_bancard_single_buy.py``
 
 Versioning
 ----------

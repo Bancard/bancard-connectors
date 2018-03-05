@@ -28,20 +28,20 @@ pip3 install bancardconnectorpython
 ### Usage in development
 
 * Download and install [Python (2.6 <= version <= 3.6)](https://www.python.org/downloads/).
-* Run `pip3 install bancardpythonconnector`.
+* Run `pip install bancardconnectorpython`.
 * Import and use library in your source code:
 ```
 from decimal import Decimal
-from bancardconnectorpython import connector, BancardAPI, BancardAPIException
+import bancardconnectorpython
 
 # this will autoconfigure the connector from the following OS environment variables:
 # BANCARD_ENVIRONMENT=sandbox|production
 # BANCARD_PUBLIC_KEY=your_public_key
 # BANCARD_PRIVATE_KEY=your_private_key
-bancard_api = bancardpythonconnector.connector
+bancard_api = bancardconnectorpython.connector()
 
 # or you could just create your own BancardAPI
-bancard_api = BancardAPI(environment=BancardAPI.ENVIRONMENT_SANDBOX, public_key=your_public_key, private_key=your_private_key)
+bancard_api = bancardconnectorpython.BancardAPI(environment=BancardAPI.ENVIRONMENT_SANDBOX, public_key=your_public_key, private_key=your_private_key)
 ```
 
 ## Sample code - Bancard Single Buy
@@ -134,21 +134,20 @@ try:
 except BancardAPIInvalidParameterException as bancard_error1:
     print(bancard_error1.msg)  # message returned by Bancard if any
     print(bancard_error1.data)  # JSON object that contains the exact response from bancard
-except BancardAPINotRolledBackException as bancard_error:
+except BancardAPINotRolledBackException as bancard_error2:
     print(bancard_error2.msg)  # message returned by Bancard if any
     print(bancard_error2.data)  # JSON object that contains the exact response from bancard
-except BancardAPIException as bancard_error:
+except BancardAPIException as bancard_error3:
     print(bancard_error3.msg)  # message returned by Bancard if any
     print(bancard_error3.data)  # JSON object that contains the exact response from bancard
 ```
 
 ## Running tests
 
-* Downlaod and install [Python (2.6 <= version <= 3.6)](https://www.python.org/downloads/)
+* Download and install [Python (2.6 <= version <= 3.6)](https://www.python.org/downloads/)
 * Install the library from PYPI: `pip install bancardconnectorpython`
-* View the Python tests under the `./tests/` folder for examples of how to use it.
-* Modify the global variables `TEST_BANCARD_PUBLIC_KEY` and `TEST_BANCARD_PRIVATE_KEY` from the test files with the values provided by Bancard.
-* Run any of the tests, i.e.: `python /path/to/tests/test_bancard_rollback.py `
+* Set the following two OS environment variables `BANCARD_PUBLIC_KEY` and `BANCARD_PRIVATE_KEY` with the values provided by Bancard.
+* Run any of the tests, i.e.: `python /path/to/tests/test_bancard_single_buy.py `
 
 ## Versioning
 
