@@ -1,3 +1,5 @@
 node_modules
 vpos/checkout/javascript/dist/*
 !vpos/checkout/javascript/dist/.keep 
+vpos/sdk/python/.idea
+vpos/sdk/python/dist
