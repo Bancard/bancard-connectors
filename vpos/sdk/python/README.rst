@@ -1,5 +1,5 @@
-Bancard VPOS 1.0 - Bancard Python Connector 0.5.3 library
-=======================================================
+Bancard VPOS 1.0 - Bancard Python Connector 0.5.4 library
+=========================================================
 
 Getting Started
 ---------------

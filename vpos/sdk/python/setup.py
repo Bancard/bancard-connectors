@@ -8,7 +8,7 @@ def readme():
 
 setup(
 	name='bancardconnectorpython',
-	version='0.5.3',
+	version='0.5.4',
 	author='Victor Cajes',
 	author_email='vcajes@gmail.com',
 	packages=['bancardconnectorpython'],

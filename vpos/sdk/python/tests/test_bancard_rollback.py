@@ -46,7 +46,7 @@ class TestBancardRollback(unittest.TestCase):
 		self.assertGreater(len(bancard_process_id), 0)  # the process id should contain at least one character
 
 		# rollback the payment
-		successfull_rollback, bancard_response = bancard_api.rollback_charge(marketplace_charge_id, amount, currency)
+		successfull_rollback, bancard_response = bancard_api.rollback_charge(marketplace_charge_id)
 		self.assertTrue(successfull_rollback)
 		self.assertIsNotNone(bancard_response)
 

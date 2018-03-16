@@ -276,16 +276,12 @@ class BancardAPI(object):
 		# by default you can assume that the transaction has been rejected
 		raise BancardAPIPaymentRejectecUnknownReasonException("Bancard reported that the payment has been rejected: %s" % bancard_tx_messages.get("dsc", ""), bancard_response)
 
-	def rollback_charge(self, marketplace_charge_id, amount, currency="PYG"):
+	def rollback_charge(self, marketplace_charge_id):
 		"""
 			Calls to the rollback Bancard WebService to rollback a given charge request.
 
 			:param marketplace_charge_id: The marketplace's custom ID of this charge request
 				:type marketplace_charge_id: int or str
-			:param amount: The amount that the payer should pay
-				:type amount: Decimal
-			:param currency: The currency of the amount to charge in the format ISO-4217
-				:type currency: str
 			:return: a tuple of: successfull_rollback, bancard_response
 				:rtype tuple (bool, dict)
 			:raises BancardAPIInvalidParameterException: if any of the input parameters is not valid
@@ -293,8 +289,6 @@ class BancardAPI(object):
 		"""
 
 		BancardAPI.validate_marketplace_charge_id(marketplace_charge_id)
-		BancardAPI.validate_amount(amount)
-		BancardAPI.validate_currency(currency)
 
 		bancard_token = "%s%s%s%s" % (self.private_key, marketplace_charge_id, "rollback", "0.00")
 		if is_python_version_greater_igual_than_3x():

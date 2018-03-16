@@ -1,5 +1,5 @@
 
-# Bancard VPOS v1.0 - Bancard Python Connector v0.5.3 library
+# Bancard VPOS v1.0 - Bancard Python Connector v0.5.4 library
 
 ## Getting Started
 
@@ -124,13 +124,11 @@ except BancardAPIException as bancard_error8:
 ```
 # bancard sample confirmations call to obtain the status of the charge
 marketplace_charge_id = "123"  # your own custom charge ID
-amount = Decimal("1000")  # the amount you want to charge
-currency = "PYG"  # currently the only allowed currency by Bancard
 
 try:
     # successfull_rollback is a True/False boolean that defines if the charge has been successfully rolled-back by Bancard
     # bancard_response is the JSON object that contains the exact response from bancard
-    successfull_rollback, bancard_response = bancard_api.rollback_charge(marketplace_charge_id, amount, currency)
+    successfull_rollback, bancard_response = bancard_api.rollback_charge(marketplace_charge_id)
 except BancardAPIInvalidParameterException as bancard_error1:
     print(bancard_error1.msg)  # message returned by Bancard if any
     print(bancard_error1.data)  # JSON object that contains the exact response from bancard
