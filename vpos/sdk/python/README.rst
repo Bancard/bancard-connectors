@@ -1,10 +1,10 @@
-Bancard VPOS 1.0 - Bancard Python Connector 0.4 library
+Bancard VPOS 1.0 - Bancard Python Connector 0.5.3 library
 =======================================================
 
 Getting Started
 ---------------
 
-This library allows developers to integrates their Python backend
+This library allows developers to integrate their Python backend
 applications to the Bancard VPOS API.
 
 This library works with the following Python versions: 2.6, 2.7, 3.3,
@@ -54,7 +54,7 @@ bancard\_api = bancardconnectorpython.connector()
 or you could just create your own BancardAPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-bancard\_api = bancardconnectorpython.BancardAPI(environment=BancardAPI.ENVIRONMENT\_SANDBOX,
+bancard\_api = bancardconnectorpython.BancardAPI(environment=bancardconnectorpython.ENVIRONMENT\_SANDBOX,
 public\_key=your\_public\_key, private\_key=your\_private\_key)
 
 

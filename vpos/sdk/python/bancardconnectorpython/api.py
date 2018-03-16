@@ -38,10 +38,12 @@ class BancardAPI(object):
 
 			:param options: Dictionary with configuration parameters for the API
 				:type options: dict
-			:param kwargs: Dictionary with any extra parameters that could be unpacked for the API. The required values are:
-				* environment: sandbox or production
+			:param kwargs: Dictionary with any extra parameters that could be unpacked for the API.
+				The required key-value pairs are:
 				* public_key: the public key given by Bancard
 				* private_key: the private key given by Bancard
+				The optional key-value pair is:
+				* environment: one the following two string constants: "sandbox" or "production". The default value is: "sandbox".
 				:type kwargs: dict
 			:raises BancardAPIConfigurationException: if the merge of options and kwargs does not contains the keys: environment public_key private_key
 		"""
@@ -86,7 +88,7 @@ class BancardAPI(object):
 	def validate_currency(currency):
 		"""
 			Validates that the currency belong to the allowed ones by Bancard (as required by the Bancard docs)
-			:param currency: values to send to the Bancard API
+			:param currency: string that represents the currency to send to the Bancard API
 			:raises BancardAPIInvalidParameterException: if the currency does not contains a valid value
 		"""
 		if type(currency) is not str or currency not in BANCARD_ALLOWED_CURRENCIES:
@@ -96,7 +98,7 @@ class BancardAPI(object):
 	def validate_amount(amount):
 		"""
 			Validates that the amount is a Decimal object greater than zero (as required by the Bancard docs)
-			:param amount: values to send to the Bancard API
+			:param amount: Decimal value that represents the amount to send to the Bancard API
 			:raises BancardAPIInvalidParameterException: if the amount does not contains a valid value
 		"""
 		if not isinstance(amount, Decimal) or amount <= Decimal(0):
@@ -106,7 +108,7 @@ class BancardAPI(object):
 	def validate_description(description):
 		"""
 			Validates that the description has a minimum/maximum length (as required by the Bancard docs)
-			:param description: values to send to the Bancard API
+			:param description: string value that represents the charge description to send to the Bancard API
 			:raises BancardAPIInvalidParameterException: if the description does not contains a valid value
 		"""
 		if type(description) is not str or not 0 <= len(description) <= 20:
@@ -116,7 +118,7 @@ class BancardAPI(object):
 	def validate_approved_url(approved_url):
 		"""
 			Validates that the approved_url has a maximum length (as required by the Bancard docs)
-			:param approved_url: values to send to the Bancard API
+			:param approved_url: string that represents the charge approved URL to send to the Bancard API
 			:raises BancardAPIInvalidParameterException: if the approved_url does not contains a valid value
 		"""
 		if type(approved_url) is not str or not 1 <= len(approved_url) <= 255:
@@ -125,8 +127,8 @@ class BancardAPI(object):
 	@staticmethod
 	def validate_cancelled_url(cancelled_url):
 		"""
-			Validates that the cancelled_url has a maximum length (as required by the Bancard docs)
-			:param cancelled_url: values to send to the Bancard API
+			Validates that the cancelled_url parameter has a maximum length (as required by the Bancard docs)
+			:param cancelled_url: string that represents the charge cancelled URL to send to the Bancard API
 			:raises BancardAPIInvalidParameterException: if the cancelled_url does not contains a valid value
 		"""
 		if type(cancelled_url) is not str or not 1 <= len(cancelled_url) <= 255:
@@ -140,7 +142,7 @@ class BancardAPI(object):
 				:type marketplace_charge_id: int or str
 			:param amount: The amount that the payer should pay
 				:type amount: Decimal
-			:param description: The text message that the payer will se while making the payment
+			:param description: The text message that the payer will see while making the payment
 				:type description: str
 			:param approved_url: The URL to which Bancard will redirect to the payer after the payer sucessfully completes the payment
 				:type approved_url: str
@@ -294,9 +296,7 @@ class BancardAPI(object):
 		BancardAPI.validate_amount(amount)
 		BancardAPI.validate_currency(currency)
 
-		amount_str = "%s.00" % currency_decimal_to_string(currency, amount)
-
-		bancard_token = "%s%s%s%s" % (self.private_key, marketplace_charge_id, "rollback", amount_str)
+		bancard_token = "%s%s%s%s" % (self.private_key, marketplace_charge_id, "rollback", "0.00")
 		if is_python_version_greater_igual_than_3x():
 			bancard_token = bytes(bancard_token, "UTF-8")
 
