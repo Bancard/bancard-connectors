@@ -25,6 +25,7 @@ import os
 import json
 import hashlib
 import requests
+import traceback
 from bancardconnectorpython.constants import *
 from bancardconnectorpython.util import *
 from bancardconnectorpython.exceptions import *
@@ -60,16 +61,25 @@ class BancardAPI(object):
 	@staticmethod
 	def __call_bancard_webservice(params, wsurl):
 		"""
-			Sends the JSON params object to the WSURL of Bancard and returns the JSON parsed response
+			Sends the JSON params object to the WSURL of Bancard and returns the JSON parsed response.
+			If answer is not received from Bancard after 60 seconds, a BancardAPITimeoutException will be raised.
 			:param params: values to send to the Bancard API
 			:param wsurl: URL of the Bancard WebService
 			:return the JSON object obtained after parsing the Bancard response
 		"""
 		bancard_body_request = json.dumps(params) if type(params) is dict else (params if type(params) is str else str(params))
 		headers = {"Content-Type": "application/json"}
-		response = requests.post(wsurl, data=bancard_body_request, headers=headers)
-		bancard_response = json.loads(response.content.decode("utf-8")) if response.content else dict()
-		return bancard_response
+
+		try:
+			response = requests.post(wsurl, data=bancard_body_request, headers=headers, timeout=60)
+			bancard_response = json.loads(response.content.decode("utf-8")) if response.content else dict()
+			return bancard_response
+		except requests.exceptions.Timeout as exct:
+			trace = "".join(traceback.format_exception(etype=type(exct), value=exct, tb=exct.__traceback__)) if is_python_version_greater_igual_than_3x() else traceback.format_exc()
+			raise BancardAPITimeoutException(trace, params)
+		except requests.RequestException as excr:
+			trace = "".join(traceback.format_exception(etype=type(excr), value=excr, tb=excr.__traceback__)) if is_python_version_greater_igual_than_3x() else traceback.format_exc()
+			raise BancardAPIConnectionException(trace, params)
 
 	@staticmethod
 	def validate_marketplace_charge_id(marketplace_charge_id):
