@@ -1,5 +1,5 @@
 
-# Bancard VPOS v1.0 - Bancard Python Connector v0.5.4 library
+# Bancard VPOS v1.0 - Python Connector v0.5.5 library
 
 ## Getting Started
 
@@ -75,9 +75,15 @@ except BancardAPIMarketplaceChargeIDAlreadyExistsException as bancard_error3:
     # authorization_number will be the string with the Bancard authorization code. This will be None if already_payed is False
     # bancard_response is the JSON object that contains the exact response from bancard
     already_payed, authorization_number, bancard_response = bancard_api.get_charge_status(marketplace_charge_id, amount, currency)
-except BancardAPIException as bancard_error4:
-    print(bancard_error4.msg)  # message returned by Bancard if any
-    print(bancard_error4.data)  # JSON object that contains the exact response from bancard
+except BancardAPITimeoutException as bancard_error4:
+    # in this case, you should check if the charge request has actually been created or not
+    # because as a timeout occured, you do not if Bancard actually received your request or not
+    # one option here is to call to the confirmations bancard api to check if the single buy exists or not
+    print(bancard_error4.msg)  # message of the timeout error
+    print(bancard_error4.data)  # parameters sent to bancard before the timeout happens
+except BancardAPIException as bancard_error5:
+    print(bancard_error5.msg)  # message returned by Bancard if any
+    print(bancard_error5.data)  # JSON object that contains the exact response from bancard
 ```
 
 ## Sample code - Bancard Confirmations
