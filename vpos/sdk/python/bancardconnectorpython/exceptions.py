@@ -84,6 +84,15 @@ class BancardAPIChargeInconsistentValuesException(BancardAPIException):
 	pass
 
 
+# exceptions for problems while connecting to the Bancard endpoint
+class BancardAPIConnectionException(BancardAPIException):
+	pass
+
+
+class BancardAPITimeoutException(BancardAPIConnectionException):
+	pass
+
+
 # exceptions for the payment rejections
 class BancardAPIPaymentRejectecException(BancardAPIException):
 	pass
