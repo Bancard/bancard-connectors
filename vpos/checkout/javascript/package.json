@@ -31,7 +31,6 @@
     "test": "jest -b"
   },
   "jest": {
-    "automock": false,
     "setupFiles": [
       "./setupJest.js"
     ]
