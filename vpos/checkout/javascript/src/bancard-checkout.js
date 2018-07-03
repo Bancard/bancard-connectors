@@ -4,6 +4,7 @@ import constants from './constants';
 const CHECKOUT_IFRAME_URL = `${constants.BANCARD_URL}/checkout/new`;
 const NEW_CARD_IFRAME_URL = `${constants.BANCARD_URL}/checkout/register_card/new`;
 const ALLOWED_STYLES_URL = `${constants.BANCARD_URL}/checkout/allowed_styles`;
+const CONFIRMATION_IFRAME_URL = `${constants.BANCARD_URL}/alias_token/confirmation/new`;
 
 const Settings = {
   handler: 'default',
@@ -105,15 +106,9 @@ const internalMethods = {
     });
   },
 
-  createForm: ({
-    divId, processId, options, url,
-  }) => {
+  initializeIframe: (divId, iFrameUrl, options) => {
     if (typeof divId !== 'string' || divId === '') {
       throw new exceptions.InvalidParameter('Div id');
-    }
-
-    if (typeof processId !== 'string' || processId === '') {
-      throw new exceptions.InvalidParameter('Process id');
     }
 
     const iframeContainer = window.document.getElementById(divId);
@@ -122,9 +117,8 @@ const internalMethods = {
       throw new exceptions.DivDoesNotExist(divId);
     }
 
-    const iframe = window.document.createElement('iframe');
+    let newIframeUrl = iFrameUrl;
 
-    let newIframeUrl = internalMethods.addParamToUrl(url, 'process_id', processId);
     if (typeof options !== 'undefined') {
       if (typeof options.styles !== 'undefined') {
         internalMethods.validateStyles(options.styles);
@@ -138,6 +132,8 @@ const internalMethods = {
       }
     }
 
+    const iframe = window.document.createElement('iframe');
+
     iframe.src = newIframeUrl;
     iframe.style.width = '100%';
     iframe.style.borderWidth = '0px';
@@ -146,6 +142,30 @@ const internalMethods = {
     iframeContainer.appendChild(iframe);
 
     internalMethods.setListener(divId);
+  },
+
+  createForm: ({
+    divId, processId, options, url,
+  }) => {
+    if (typeof processId !== 'string' || processId === '') {
+      throw new exceptions.InvalidParameter('Process id');
+    }
+
+    const iFrameUrl = internalMethods.addParamToUrl(url, 'process_id', processId);
+
+    internalMethods.initializeIframe(divId, iFrameUrl, options);
+  },
+
+  loadPinPad: ({
+    divId, aliasToken, options, url,
+  }) => {
+    if (typeof aliasToken !== 'string' || aliasToken === '') {
+      throw new exceptions.InvalidParameter('Alias token');
+    }
+
+    const iFrameUrl = internalMethods.addParamToUrl(url, 'alias_token', aliasToken);
+
+    internalMethods.initializeIframe(divId, iFrameUrl, options);
   },
 
   clearElement: (element) => {
@@ -173,6 +193,17 @@ class Bancard {
         this.divId = divId;
         internalMethods.createForm({
           divId, processId, options, url: NEW_CARD_IFRAME_URL,
+        });
+      },
+    };
+  }
+
+  get Confirmation() {
+    return {
+      loadPinPad: (divId, aliasToken, options) => {
+        this.divId = divId;
+        internalMethods.loadPinPad({
+          divId, aliasToken, options, url: CONFIRMATION_IFRAME_URL,
         });
       },
     };
