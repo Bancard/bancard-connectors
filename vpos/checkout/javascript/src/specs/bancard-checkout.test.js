@@ -49,7 +49,6 @@ describe('Bancard', () => {
 
     describe('Confirmation', () => {
       beforeEach(() => {
-        instance.Confirmation.loadPinPad('targetDiv', '1234');
         window.location.replace = jest.fn();
       });
 
@@ -164,13 +163,9 @@ describe('Bancard', () => {
     afterEach(() => { instance.destroy(); });
 
     test('It throws exception', () => {
-      expect(() => { instance.Confirmation.loadPinPad('targetDiv', ''); })
-        .toThrowError(exceptions.InvalidParameter);
     });
 
     test('It throws exception', () => {
-      expect(() => { instance.Confirmation.loadPinPad('targetDiv', 23); })
-        .toThrowError(exceptions.InvalidParameter);
     });
   });
 });

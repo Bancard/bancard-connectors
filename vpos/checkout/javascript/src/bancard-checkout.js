@@ -4,7 +4,6 @@ import constants from './constants';
 const CHECKOUT_IFRAME_URL = `${constants.BANCARD_URL}/checkout/new`;
 const NEW_CARD_IFRAME_URL = `${constants.BANCARD_URL}/checkout/register_card/new`;
 const ALLOWED_STYLES_URL = `${constants.BANCARD_URL}/checkout/allowed_styles`;
-const CONFIRMATION_IFRAME_URL = `${constants.BANCARD_URL}/alias_token/confirmation/new`;
 
 const Settings = {
   handler: 'default',
@@ -156,18 +155,6 @@ const internalMethods = {
     internalMethods.initializeIframe(divId, iFrameUrl, options);
   },
 
-  loadPinPad: ({
-    divId, aliasToken, options, url,
-  }) => {
-    if (typeof aliasToken !== 'string' || aliasToken === '') {
-      throw new exceptions.InvalidParameter('Alias token');
-    }
-
-    const iFrameUrl = internalMethods.addParamToUrl(url, 'alias_token', aliasToken);
-
-    internalMethods.initializeIframe(divId, iFrameUrl, options);
-  },
-
   clearElement: (element) => {
     while (element.firstChild) {
       element.removeChild(element.firstChild);
@@ -193,17 +180,6 @@ class Bancard {
         this.divId = divId;
         internalMethods.createForm({
           divId, processId, options, url: NEW_CARD_IFRAME_URL,
-        });
-      },
-    };
-  }
-
-  get Confirmation() {
-    return {
-      loadPinPad: (divId, aliasToken, options) => {
-        this.divId = divId;
-        internalMethods.loadPinPad({
-          divId, aliasToken, options, url: CONFIRMATION_IFRAME_URL,
         });
       },
     };
