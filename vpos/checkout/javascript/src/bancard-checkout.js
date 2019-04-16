@@ -3,6 +3,7 @@ import constants from './constants';
 
 const CHECKOUT_IFRAME_URL = `${constants.BANCARD_URL}/checkout/new`;
 const NEW_CARD_IFRAME_URL = `${constants.BANCARD_URL}/checkout/register_card/new`;
+const ZIMPLE_IFRAME_URL = `${constants.BANCARD_URL}/checkout/zimple/new`;
 const ALLOWED_STYLES_URL = `${constants.BANCARD_URL}/checkout/allowed_styles`;
 const CONFIRMATION_IFRAME_URL = `${constants.BANCARD_URL}/alias_token/confirmation/new`;
 
@@ -193,6 +194,17 @@ class Bancard {
         this.divId = divId;
         internalMethods.createForm({
           divId, processId, options, url: NEW_CARD_IFRAME_URL,
+        });
+      },
+    };
+  }
+
+  get Zimple() {
+    return {
+      createForm: (divId, processId, options) => {
+        this.divId = divId;
+        internalMethods.createForm({
+          divId, processId, options, url: ZIMPLE_IFRAME_URL,
         });
       },
     };
