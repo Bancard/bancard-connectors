@@ -6,6 +6,7 @@ const NEW_CARD_IFRAME_URL = `${constants.BANCARD_URL}/checkout/register_card/new
 const ZIMPLE_IFRAME_URL = `${constants.BANCARD_URL}/checkout/zimple/new`;
 const ALLOWED_STYLES_URL = `${constants.BANCARD_URL}/checkout/allowed_styles`;
 const CONFIRMATION_IFRAME_URL = `${constants.BANCARD_URL}/alias_token/confirmation/new`;
+const PREAUTHORIZATION_IFRAME_URL = `${constants.BANCARD_URL}/checkout/preauthorization/new`;
 
 const Settings = {
   handler: 'default',
@@ -216,6 +217,17 @@ class Bancard {
         this.divId = divId;
         internalMethods.loadPinPad({
           divId, aliasToken, options, url: CONFIRMATION_IFRAME_URL,
+        });
+      },
+    };
+  }
+
+  get Preauthorization() {
+    return {
+      createForm: (divId, processId, options) => {
+        this.divId = divId;
+        internalMethods.createForm({
+          divId, processId, options, url: PREAUTHORIZATION_IFRAME_URL,
         });
       },
     };
