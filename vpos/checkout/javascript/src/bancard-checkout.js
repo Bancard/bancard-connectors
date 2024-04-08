@@ -7,6 +7,7 @@ const ZIMPLE_IFRAME_URL = `${constants.BANCARD_URL}/checkout/zimple/new`;
 const ALLOWED_STYLES_URL = `${constants.BANCARD_URL}/checkout/allowed_styles`;
 const CONFIRMATION_IFRAME_URL = `${constants.BANCARD_URL}/alias_token/confirmation/new`;
 const PREAUTHORIZATION_IFRAME_URL = `${constants.BANCARD_URL}/checkout/preauthorization/new`;
+const CHARGE3DS_IFRAME_URL = `${constants.BANCARD_URL}/checkout/charge_3ds/new`;
 
 const Settings = {
   handler: 'default',
@@ -228,6 +229,17 @@ class Bancard {
         this.divId = divId;
         internalMethods.createForm({
           divId, processId, options, url: PREAUTHORIZATION_IFRAME_URL,
+        });
+      },
+    };
+  }
+
+  get Charge3DS() {
+    return {
+      createForm: (divId, processId, options) => {
+        this.divId = divId;
+        internalMethods.createForm({
+          divId, processId, options, url: CHARGE3DS_IFRAME_URL,
         });
       },
     };

@@ -171,6 +171,24 @@ describe('Bancard', () => {
           .toBe('https://desa.infonet.com.py:8085/checkout/preauthorization/new?process_id=1234');
       });
     });
+
+    describe('Charge3DS', () => {
+      beforeEach(() => {
+        instance.Charge3DS.createForm('targetDiv', '1234');
+        window.location.replace = jest.fn();
+      });
+
+      afterEach(() => { instance.destroy(); });
+
+      test('It creates the iframe', () => {
+        expect(document.querySelectorAll('iframe').length).toBe(1);
+      });
+
+      test('Iframe points to correct URL', () => {
+        expect(document.querySelectorAll('iframe')[0].getAttribute('src'))
+          .toBe('https://desa.infonet.com.py:8085/checkout/charge_3ds/new?process_id=1234');
+      });
+    });
   });
 
   describe('When the div does not exist', () => {
