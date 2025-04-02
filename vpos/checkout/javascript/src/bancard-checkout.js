@@ -142,6 +142,7 @@ const internalMethods = {
     iframe.src = newIframeUrl;
     iframe.style.width = '100%';
     iframe.style.borderWidth = '0px';
+    iframe.allow = 'web-share';
 
     iframeContainer.innerHTML = '';
     iframeContainer.appendChild(iframe);
